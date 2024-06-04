@@ -25,6 +25,7 @@ class MyWindow(QMainWindow):
         self.inicial_ocupacion_hand_b = "100"
         self.inicial_ocupacion_basket_a = "70"
         self.inicial_ocupacion_basket_b = "130"
+        self.inicial_cant_grupos = "5"
         self.inicial_filas_mostrar = "10"
         self.inicial_fila_desde = "10"
         self.init_main_window()
@@ -42,6 +43,7 @@ class MyWindow(QMainWindow):
             'ocupacion_hand_b': '',
             'ocupacion_basket_a': '',
             'ocupacion_basket_b': '',
+            'cant_grupos': '',
             'filas_mostrar': '',
             'fila_desde': ''
         }
@@ -72,6 +74,8 @@ class MyWindow(QMainWindow):
             "Tiempo de ocupación basket A: ")
         self.ocupacion_basket_b, self.ocupacion_basket_b_input, self.ocupacion_basket_b_label = self.create_input_field(
             "Tiempo de ocupación basket B: ")
+        self.cant_grupos, self.cant_grupos_input, self.cant_grupos_label = self.create_input_field(
+            "Cantidad de grupos: ")
         self.filas_mostrar, self.filas_mostrar_input, self.filas_mostrar_label = self.create_input_field(
             "Cantidad filas a mostrar: ")
         self.fila_desde, self.fila_desde_input, self.fila_desde_label = self.create_input_field(
@@ -93,6 +97,7 @@ class MyWindow(QMainWindow):
         self.ocupacion_hand_b_label.setFont(font)
         self.ocupacion_basket_a_label.setFont(font)
         self.ocupacion_basket_b_label.setFont(font)
+        self.cant_grupos_label.setFont(font)
         self.filas_mostrar_label.setFont(font)
         self.fila_desde_label.setFont(font)
 
@@ -109,6 +114,7 @@ class MyWindow(QMainWindow):
         self.ocupacion_hand_b_input.setFont(font)
         self.ocupacion_basket_a_input.setFont(font)
         self.ocupacion_basket_b_input.setFont(font)
+        self.cant_grupos_input.setFont(font)
         self.filas_mostrar_input.setFont(font)
         self.fila_desde_input.setFont(font)
 
@@ -126,6 +132,7 @@ class MyWindow(QMainWindow):
         self.ocupacion_hand_b_input.setText(str(self.inicial_ocupacion_hand_b))
         self.ocupacion_basket_a_input.setText(str(self.inicial_ocupacion_basket_a))
         self.ocupacion_basket_b_input.setText(str(self.inicial_ocupacion_basket_b))
+        self.cant_grupos_input.setText(str(self.inicial_cant_grupos))
         self.filas_mostrar_input.setText(str(self.inicial_filas_mostrar))
         self.fila_desde_input.setText(str(self.inicial_fila_desde))
 
@@ -153,6 +160,7 @@ class MyWindow(QMainWindow):
         self.ocupacion_hand_b_input.returnPressed.connect(self.simular_action)
         self.ocupacion_basket_a_input.returnPressed.connect(self.simular_action)
         self.ocupacion_basket_b_input.returnPressed.connect(self.simular_action)
+        self.cant_grupos_input.returnPressed.connect(self.simular_action)
         self.filas_mostrar_input.returnPressed.connect(self.simular_action)
         self.fila_desde_input.returnPressed.connect(self.simular_action)
 
@@ -224,11 +232,18 @@ class MyWindow(QMainWindow):
         layout.addSpacing(50)
 
         row_layout_7 = QHBoxLayout()
-        row_layout_7.addWidget(self.filas_mostrar_label)
-        row_layout_7.addWidget(self.filas_mostrar_input)
-        row_layout_7.addWidget(self.fila_desde_label)
-        row_layout_7.addWidget(self.fila_desde_input)
+        row_layout_7.addWidget(self.cant_grupos_label)
+        row_layout_7.addWidget(self.cant_grupos_input)
         layout.addLayout(row_layout_7)
+
+        layout.addSpacing(50)
+
+        row_layout_8 = QHBoxLayout()
+        row_layout_8.addWidget(self.filas_mostrar_label)
+        row_layout_8.addWidget(self.filas_mostrar_input)
+        row_layout_8.addWidget(self.fila_desde_label)
+        row_layout_8.addWidget(self.fila_desde_input)
+        layout.addLayout(row_layout_8)
 
         # Agregar el botón al diseño vertical
         layout.addSpacing(100)
@@ -255,6 +270,7 @@ class MyWindow(QMainWindow):
         self.ocupacion_hand_b = 0
         self.ocupacion_basket_a = 0
         self.ocupacion_basket_b = 0
+        self.cant_grupos = 0
         self.filas_mostrar = 0
         self.fila_desde = 0
 
