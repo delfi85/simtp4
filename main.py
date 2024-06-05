@@ -1,6 +1,6 @@
+import math
 import sys
-from random import random
-
+import random
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QPushButton, QVBoxLayout, QLabel, \
     QLineEdit, QHBoxLayout, QWidget, QMessageBox, QHeaderView, QLayout, QSizePolicy, QSpacerItem
@@ -258,18 +258,18 @@ class MyWindow(QMainWindow):
 
         # Inicializar los valores de los campos
         self.iteraciones = 0
-        self.limpieza = 0
-        self.llegada_futbol = 0
-        self.llegada_hand_a = 0
-        self.llegada_hand_b = 0
-        self.llegada_basket_a = 0
-        self.llegada_basket_b = 0
-        self.ocupacion_futbol_a = 0
-        self.ocupacion_futbol_b = 0
-        self.ocupacion_hand_a = 0
-        self.ocupacion_hand_b = 0
-        self.ocupacion_basket_a = 0
-        self.ocupacion_basket_b = 0
+        self.limpieza = 10
+        self.llegada_futbol = 10
+        self.llegada_hand_a = 10
+        self.llegada_hand_b = 20
+        self.llegada_basket_a = 10
+        self.llegada_basket_b = 20
+        self.ocupacion_futbol_a = 10
+        self.ocupacion_futbol_b = 20
+        self.ocupacion_hand_a = 10
+        self.ocupacion_hand_b = 20
+        self.ocupacion_basket_a = 10
+        self.ocupacion_basket_b = 20
         self.cant_grupos = 0
         self.filas_mostrar = 0
         self.fila_desde = 0
@@ -522,9 +522,136 @@ class MyWindow(QMainWindow):
     def show_main_page(self):
         self.init_main_window()
 
+    
+    
+    # Aca empece a modificar
+    
+    
+    def iniciar_simulacion(self):
+        # Defini este vector estado con el excel, lo unico que en vez de hacer tantas columnas para calcular la llegada de los equipos hice una por equipo, al igual que la ocupacion
+        # Para la ocupacion, solo muestro cuando se va a desocupar (en tiempo) y que equipo la esta ocupando, para ahorrar columnas, porque solo un equipo ocupa la cancha a la vez
+        vectorEstado = ["Inicio", 0, self.calcularProxLlegadaFutbol(0), self.calcularProxLlegadaHandball(0), self.calcularProxLlegadaBasketball(0), 0, 0, "", "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] #-10 es la finalizacion de la ocupacion
+        print(vectorEstado)
+        
+        # Todo esto iria en un for o en un while que vaya iterando en el tiempo
+        for _ in range(5):
+            prox_reloj, nombre_proxEvento = self.proximoEvento(vectorEstado)
+
+            # Asignamos el valor de prox_reloj al reloj actual y tambien el nombre del evento
+            vectorEstado[0] = nombre_proxEvento
+            vectorEstado[1] = prox_reloj
+            if (nombre_proxEvento == "Llegada futbol"):
+                # Aca iria la logica si llega un equipo de futbol
+                # Primero calculamos la proxima llegada de un equipo de futbol
+                vectorEstado[2] = self.calcularProxLlegadaFutbol(vectorEstado[1])
+
+                #luego calculo cuanto tiempo va a ocupar la cancha pero me falta el if que si no esta ocupada la cancha
+                vectorEstado[-10] = self.calcularFinOcupacionFutbol(vectorEstado[1])
+
+                print(vectorEstado)
+            elif (nombre_proxEvento == "Llegada handball"):
+                # Aca iria la logica si llega handball
+                # Primero calculamos la proxima llegada de un equipo de futbol
+                vectorEstado[3] = self.calcularProxLlegadaHandball(vectorEstado[1])
+
+                #luego calculo cuanto tiempo va a ocupar la cancha
+                vectorEstado[-10] = self.calcularFinOcupacionHandball(vectorEstado[1])
+
+                print(vectorEstado)
+
+            elif(nombre_proxEvento == "Llegada basketball"):
+                # Aca iria la logica si llega un equipo de basketball
+                # Primero calculamos la proxima llegada de un equipo de futbol
+                vectorEstado[4] = self.calcularProxLlegadaBasketball(vectorEstado[1])
+
+                #luego calculo cuanto tiempo va a ocupar la cancha
+                vectorEstado[-10] = self.calcularFinOcupacionBasketball(vectorEstado[1])
+
+                print(vectorEstado)
+                
+            elif(nombre_proxEvento == "Fin Ocupacion"):
+                # Aca iria la logica si termina la ocupacion de cancha
+                cola = vectorEstado[5]
+                # Me falta en este if toda la parte de ver que equipo es el que sigue
+                if(cola > 0):
+                    # logica cuando tenemos equipos en cola
+                    pass
+
+            #Este print es solo para ver si funcionaba bien el metodo proximoEvento()
+            #print(prox_reloj, nombre_proxEvento)
+
+
+
+    def proximoEvento(self, vectorEstado):
+        proximoRelojLlegada = [vectorEstado[2], vectorEstado[3], vectorEstado[4], vectorEstado[-10]]
+
+        # Todo este if lo unico que hace es no devolver como primer evento el fin de ocupacion, cuando vale 0 en la primer "fila" de la tabla
+        # en el evento de "Inicio"
+        if vectorEstado[-10] > 0:
+            # Encontrar el índice del valor mínimo en proximoRelojLlegada
+            indice_minimo = proximoRelojLlegada.index(min(proximoRelojLlegada))
+
+            # Asignar nombres de reloj según el índice
+            nombres_reloj = ["Llegada futbol", "Llegada handball", "Llegada basketball", "Fin Ocupacion"]
+            nombre_reloj_minimo = nombres_reloj[indice_minimo]
+
+            # Devolver el número de reloj y el nombre del próximo evento
+        else:
+            # Encontrar el índice del valor mínimo en proximoRelojLlegada
+            indice_minimo = proximoRelojLlegada.index(min(proximoRelojLlegada[0], proximoRelojLlegada[1], proximoRelojLlegada[2]))
+
+            # Asignar nombres de reloj según el índice
+            nombres_reloj = ["Llegada futbol", "Llegada handball", "Llegada basketball"]
+            nombre_reloj_minimo = nombres_reloj[indice_minimo]
+
+            # Devolver el número de reloj y el nombre del próximo evento
+        return proximoRelojLlegada[indice_minimo], nombre_reloj_minimo
+
+
+
+    # Todos los metodos de aca abajo son de calculo
+    def redondear_a_4_decimales(self, numero):
+        return round(numero, 4)
+    
+    def calcularProxLlegadaFutbol(self, relojActual):
+        #Esta funcion calcula y devuelve en que momento va a llegar el proximo equipo de futbol
+        rnd = random.random()
+        rnd_exp = self.redondear_a_4_decimales(-(self.llegada_futbol) * math.log(1 - rnd))
+        return relojActual + rnd_exp
+    
+    def calcularProxLlegadaHandball(self, relojActual):
+        #Esta funcion calcula la proxima llegada de un equipo de handball
+        rnd = random.random()
+        rnd_unif = self.llegada_hand_a + rnd * (self.llegada_hand_b - self.llegada_hand_a)
+        return self.redondear_a_4_decimales(relojActual + rnd_unif)
+    
+    def calcularProxLlegadaBasketball(self, relojActual):
+        #Esta funcion calcula la proxima llegada de un equipo de basketball
+        rnd = random.random()
+        rnd_unif = self.llegada_basket_a + rnd * (self.llegada_basket_a - self.llegada_basket_b)
+        return self.redondear_a_4_decimales(relojActual + rnd_unif)
+    
+    def calcularFinOcupacionFutbol(self, relojActual):
+        rnd = random.random()
+        rnd_unif = self.ocupacion_futbol_a + rnd * (self.ocupacion_futbol_a - self.ocupacion_futbol_b)
+        return self.redondear_a_4_decimales(relojActual + rnd_unif)
+    
+    def calcularFinOcupacionHandball(self, relojActual):
+        rnd = random.random()
+        rnd_unif = self.ocupacion_hand_a + rnd * (self.ocupacion_hand_a - self.ocupacion_hand_b)
+        return self.redondear_a_4_decimales(relojActual + rnd_unif)
+    
+    def calcularFinOcupacionBasketball(self, relojActual):
+        rnd = random.random()
+        rnd_unif = self.ocupacion_basket_a + rnd * (self.ocupacion_basket_a - self.ocupacion_basket_b)
+        return self.redondear_a_4_decimales(relojActual + rnd_unif)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MyWindow()
+    # Esto es solo para ver si funcionaba el metodo proximoEvento()
+    window.iniciar_simulacion()
     window.show()
     sys.exit(app.exec_())
+    
