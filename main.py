@@ -307,7 +307,9 @@ class MyWindow(QMainWindow):
         # Realizar la acción de simulación o cerrar la ventana, dependiendo del contexto
         self.show_second_page()
 
-    def mostrar_datos(self, dias, ventas, costo_ventas, costo_obrero, total_dias, filas_mostrar, fila_desde):
+    def mostrar_datos(self, iteraciones, limpieza, llegada_futbol, llegada_hand_a, llegada_hand_b, llegada_basket_a,
+                               llegada_basket_b, ocupacion_futbol_a, ocupacion_futbol_b, ocupacion_hand_a,
+                               ocupacion_hand_b,ocupacion_basket_a, ocupacion_basket_b,cant_grupos, filas_mostrar, fila_desde):
         data = [[0] * 8, [0] * 8]  # Inicializamos data con dos elementos
         beneficio_acumulado = [0, 0, 0]  # Inicializamos beneficio_acumulado con tres ceros
         ventas_acumuladas = [0, 0, 0]
@@ -317,34 +319,33 @@ class MyWindow(QMainWindow):
         # Calcular el índice final de las filas a mostrar
         fila_hasta = fila_desde + filas_mostrar
 
-        for i in range(dias):
-            rnd = round(random(), 2)
-            ausentes = self.calcular_ausentes(total_dias, rnd)
-            nomina = [max(0, 21 - ausentes), max(0, 22 - ausentes), max(0, 23 - ausentes)]
-            ventas_dia = [0, 0, 0]
-            costos_produccion_dia = [0, 0, 0]
-            for numero_nomina in range(len(nomina)):
-                if nomina[numero_nomina] >= 20:
-                    ventas_dia[numero_nomina] = ventas
-                    costos_produccion_dia[numero_nomina] = costo_ventas
-            salario = [x * costo_obrero for x in [21, 22, 23]]
-            beneficio = [0, 0, 0]
-
-            for j in range(3):
-                beneficio[j] = ventas_dia[j] - costos_produccion_dia[j] - salario[j]
-                beneficio_acumulado[j] += beneficio[j]  # Acumulamos el beneficio
+        #for i in range(dias):
+        #    rnd = round(random(), 2)
+        #    ausentes = self.calcular_ausentes(total_dias, rnd)
+        #    nomina = [max(0, 21 - ausentes), max(0, 22 - ausentes), max(0, 23 - ausentes)]
+        #    ventas_dia = [0, 0, 0]
+        #    costos_produccion_dia = [0, 0, 0]
+        #    for numero_nomina in range(len(nomina)):
+        #        if nomina[numero_nomina] >= 20:
+        #           ventas_dia[numero_nomina] = ventas
+        #            costos_produccion_dia[numero_nomina] = costo_ventas
+        #    salario = [x * costo_obrero for x in [21, 22, 23]]
+        #    beneficio = [0, 0, 0]
+        #    for j in range(3):
+         #       beneficio[j] = ventas_dia[j] - costos_produccion_dia[j] - salario[j]
+          #      beneficio_acumulado[j] += beneficio[j]  # Acumulamos el beneficio
                 # Acumulamos ventas, costos y salario
-                ventas_acumuladas[j] += ventas_dia[j]
-                costos_acumulados[j] += costos_produccion_dia[j]
-                salario_acumulado[j] += salario[j]
+           #     ventas_acumuladas[j] += ventas_dia[j]
+            #    costos_acumulados[j] += costos_produccion_dia[j]
+             #   salario_acumulado[j] += salario[j]
 
             # Verificar si estamos dentro del rango de filas a mostrar
-            if fila_desde <= i <= fila_hasta - 1 or i == dias - 1:
+            #if fila_desde <= i <= fila_hasta - 1 or i == dias - 1:
                 # Aca uso el modulo de i para ir alternando entre 0 y 1, para poder alternar entre los objetos del vector
-                data[i % 2] = [i + 1, rnd, ausentes, nomina, ventas_acumuladas, costos_acumulados, salario_acumulado,
-                               beneficio_acumulado.copy()]
+             #   data[i % 2] = [i + 1, rnd, ausentes, nomina, ventas_acumuladas, costos_acumulados, salario_acumulado,
+              #                 beneficio_acumulado.copy()]
 
-                self.insertar_en_tabla(data[i % 2])
+               # self.insertar_en_tabla(data[i % 2])
 
     def insertar_en_tabla(self, fila):
         # Obtiene el número de filas existentes en la tabla. ya que esta funcion puede ser llamada con filas
@@ -383,17 +384,47 @@ class MyWindow(QMainWindow):
         return layout, input_field, label
 
     def show_second_page(self):
-        dias_text = self.dias_input.text()
-        self.inicial_dias = dias_text
+        iteraciones_text = self.iteraciones_input.text()
+        self.inicial_iteraciones = iteraciones_text
 
-        ventas_text = self.ventas_input.text()
-        self.inicial_ventas = ventas_text
+        limpieza_text = self.limpieza_input.text()
+        self.inicial_limpieza = limpieza_text
 
-        costo_ventas_text = self.costo_ventas_input.text()
-        self.inicial_costo_ventas = costo_ventas_text
+        llegada_futbol_text = self.llegada_futbol_input.text()
+        self.inicial_llegada_futbol = llegada_futbol_text
 
-        costo_obrero_text = self.costo_obrero_input.text()
-        self.inicial_costo_obrero = costo_obrero_text
+        llegada_hand_a_text = self.llegada_hand_a_input.text()
+        self.inicial_llegada_hand_a = llegada_hand_a_text
+
+        llegada_hand_b_text = self.llegada_hand_b_input.text()
+        self.inicial_llegada_hand_b = llegada_hand_b_text
+
+        llegada_basket_a_text = self.llegada_basket_a_input.text()
+        self.inicial_llegada_basket_a = llegada_basket_a_text
+
+        llegada_basket_b_text = self.llegada_basket_b_input.text()
+        self.inicial_llegada_basket_b = llegada_basket_b_text
+
+        ocupacion_futbol_a_text = self.ocupacion_futbol_a_input.text()
+        self.inicial_ocupacion_futbol_a = ocupacion_futbol_a_text
+
+        ocupacion_futbol_b_text = self.ocupacion_futbol_b_input.text()
+        self.inicial_ocupacion_futbol_b = ocupacion_futbol_b_text
+
+        ocupacion_hand_a_text = self.ocupacion_hand_a_input.text()
+        self.inicial_ocupacion_hand_a = ocupacion_hand_a_text
+
+        ocupacion_hand_b_text = self.ocupacion_hand_b_input.text()
+        self.inicial_ocupacion_hand_b = ocupacion_hand_b_text
+
+        ocupacion_basket_a_text = self.ocupacion_basket_a_input.text()
+        self.inicial_ocupacion_basket_a = ocupacion_basket_a_text
+
+        ocupacion_basket_b_text = self.ocupacion_basket_b_input.text()
+        self.inicial_ocupacion_basket_b = ocupacion_basket_b_text
+
+        cant_grupos_text = self.cant_grupos_input.text()
+        self.inicial_cant_grupos = cant_grupos_text
 
         filas_mostrar_text = self.filas_mostrar_input.text()
         self.inicial_filas_mostrar = filas_mostrar_text
@@ -401,60 +432,52 @@ class MyWindow(QMainWindow):
         fila_desde_text = self.fila_desde_input.text()
         self.inicial_fila_desde = fila_desde_text
 
-
         # Validación de todos los campos para que todos sean completados
-        if dias_text.strip() == '' or ventas_text.strip() == '' or costo_ventas_text.strip() == '' \
-                or costo_obrero_text.strip() == '' or filas_mostrar_text.strip() == '' or fila_desde_text.strip() == '':
-            QMessageBox.warning(self, 'Campos vacíos', 'Por favor, complete todos los campos.')
-            return
+        #if dias_text.strip() == '' or ventas_text.strip() == '' or costo_ventas_text.strip() == '' \
+        #       or costo_obrero_text.strip() == '' or filas_mostrar_text.strip() == '' or fila_desde_text.strip() == '':
+        #   QMessageBox.warning(self, 'Campos vacíos', 'Por favor, complete todos los campos.')
+        #   return
 
-
-        # Validación de días
-
-        dias = int(dias_text)
-        if dias <= 0 or dias > 100000:
-            QMessageBox.warning(self, 'Valor inválido', 'El número de días debe estar entre 1 y 100,000.')
-            return
-
-        # Validación de filas_mostrar
-
-        filas_mostrar = int(filas_mostrar_text)
-        if filas_mostrar > dias:
-            QMessageBox.warning(self, 'Valor inválido',
-                                'El número de filas a mostrar no debe exceder al número de días.')
-            return
-
-        if filas_mostrar <= 0 or filas_mostrar > 400:
-            QMessageBox.warning(self, 'Valor inválido',
-                                'El número de filas a mostrar debe estar entre 1 y 400.')
-            return
-
-        # Validación de fila_desde
-
-        fila_desde = int(fila_desde_text)
-        if fila_desde < 0 or fila_desde > dias - filas_mostrar:
-            QMessageBox.warning(self, 'Valor inválido',
-                                'El número de fila desde debe estar entre 0 y {}.'.format(dias - filas_mostrar))
-            return
-
-        dias = int(dias_text)
-        ventas = float(ventas_text)
-        costo_ventas = float(costo_ventas_text)
-        costo_obrero = float(costo_obrero_text)
+        iteraciones = int(iteraciones_text)
+        limpieza = float(limpieza_text)
+        llegada_futbol = float(llegada_futbol_text)
+        llegada_hand_a = float(llegada_hand_a_text)
+        llegada_hand_b = float(llegada_hand_b_text)
+        llegada_basket_a = float(llegada_basket_a_text)
+        llegada_basket_b = float(llegada_basket_b_text)
+        ocupacion_futbol_a = float(ocupacion_futbol_a_text)
+        ocupacion_futbol_b = float(ocupacion_futbol_b_text)
+        ocupacion_hand_a = float(ocupacion_hand_a_text)
+        ocupacion_hand_b = float(ocupacion_hand_b_text)
+        ocupacion_basket_a = float(ocupacion_basket_a_text)
+        ocupacion_basket_b = float(ocupacion_basket_b_text)
+        cant_grupos = int(cant_grupos_text)
         filas_mostrar = int(filas_mostrar_text)
         fila_desde = int(fila_desde_text)
-        self.init_second_page2(dias, ventas, costo_ventas, costo_obrero, filas_mostrar, fila_desde)
+        self.init_second_page2(iteraciones, limpieza, llegada_futbol, llegada_hand_a, llegada_hand_b, llegada_basket_a,
+                               llegada_basket_b, ocupacion_futbol_a, ocupacion_futbol_b, ocupacion_hand_a,
+                               ocupacion_hand_b,ocupacion_basket_a, ocupacion_basket_b,cant_grupos, filas_mostrar, fila_desde)
 
-    def init_second_page2(self, dias, ventas, costo_ventas, costo_obrero, filas_mostrar, fila_desde):
+    def init_second_page2(self, iteraciones, limpieza, llegada_futbol, llegada_hand_a, llegada_hand_b, llegada_basket_a,
+                               llegada_basket_b, ocupacion_futbol_a, ocupacion_futbol_b, ocupacion_hand_a,
+                               ocupacion_hand_b,ocupacion_basket_a, ocupacion_basket_b,cant_grupos, filas_mostrar, fila_desde):
         self.tableWidgetSecond = QTableWidget(self)
         self.tableWidgetSecond.setColumnCount(18)
         self.tableWidgetSecond.setHorizontalHeaderLabels(
-            ["Reloj", "RND", "AUSENTES", "NÓMINA 21", "NÓMINA 22", "NÓMINA 23",
-             "VENTAS 21", "VENTAS 22", "VENTAS 23", "COSTOS 21",
-             "COSTOS 22", "COSTOS 23", "SALARIO 21",
-             "SALARIO 22", "SALARIO 23", "BENEFICIO 21", "BENEFICIO 22", "BENEFICIO 23"])
+            ["Evento", "Reloj", "Fútbol RND", "Fútbol Tiempo entre Llegadas", "Fútbol Próxima Llegada", "Hand RND",
+             "Hand Tiempo entre Llegadas", "Hand Próxima Llegada", "Basket RND",
+             "Basket Tiempo entre Llegadas", "Basket Próxima Llegada", "Cola Cancha", "Grupo Retirado", "Estado Cancha",
+             "¿Quién está ocupando?", "¿Quién entra?", "¿Quién sigue?", "Prioridad", "Fútbol RND", "Fútbol Tiempo de Ocupación",
+             "Fútbol Fin Ocupación", "Hand RND", "Hand Tiempo de Ocupación",
+             "Hand Fin Ocupación", "Basket RND", "Basket Tiempo de Ocupación",
+             "Basket Fin Ocupación", "Tiempo de Limpieza", "Tiempo de Espera", "Cantidad Grupos Fútbol", "Cantidad Grupos Hand",
+             "Cantidad Grupos Basket", "Fútbol Tiempo de espera acumulado", "Hand Tiempo de espera acumulado",
+             "Basket Tiempo de espera acumulado", "Tiempo personal de limpieza acumulado"])
+        #Ver dónde o cómo podría poner la tasa de limpieza y el promedio a calcular
         total_dias = sum(int(self.tableWidget.item(row, 1).text()) for row in range(self.tableWidget.rowCount()))
-        self.mostrar_datos(dias, ventas, costo_ventas, costo_obrero, total_dias, filas_mostrar, fila_desde)
+        self.mostrar_datos(iteraciones, limpieza, llegada_futbol, llegada_hand_a, llegada_hand_b, llegada_basket_a,
+                               llegada_basket_b, ocupacion_futbol_a, ocupacion_futbol_b, ocupacion_hand_a,
+                               ocupacion_hand_b,ocupacion_basket_a, ocupacion_basket_b,cant_grupos, filas_mostrar, fila_desde)
 
         self.backButton = QPushButton("Volver", self)
         self.backButton.setGeometry(350, 540, 100, 30)
