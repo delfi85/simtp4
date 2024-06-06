@@ -530,69 +530,155 @@ class MyWindow(QMainWindow):
     def iniciar_simulacion(self):
         # Defini este vector estado con el excel, lo unico que en vez de hacer tantas columnas para calcular la llegada de los equipos hice una por equipo, al igual que la ocupacion
         # Para la ocupacion, solo muestro cuando se va a desocupar (en tiempo) y que equipo la esta ocupando, para ahorrar columnas, porque solo un equipo ocupa la cancha a la vez
-        vectorEstado = ["Inicio", 0, self.calcularProxLlegadaFutbol(0), self.calcularProxLlegadaHandball(0), self.calcularProxLlegadaBasketball(0), 0, 0, "", "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] #-10 es la finalizacion de la ocupacion
+        tiempo_llegada_futbol, rnd_futbol_llegada = self.calcularProxLlegadaFutbol(0)
+        tiempo_llegada_hand, rnd_hand_llegada = self.calcularProxLlegadaHandball(0)
+        tiempo_llegada_basket, rnd_basket_llegada = self.calcularProxLlegadaBasketball(0)
+                        #EVENTO  #RELOJ #RND #TIEMPO ENTRE LLEGADAS #LLEGADA
+        vectorEstado = ["Inicio", 0, rnd_futbol_llegada, 0, tiempo_llegada_futbol, rnd_hand_llegada, 0, tiempo_llegada_hand,
+                        rnd_basket_llegada, 0, tiempo_llegada_basket, 0, "", "Libre", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] #-10 es la finalizacion de la ocupacion
         print(vectorEstado)
         
         # Todo esto iria en un for o en un while que vaya iterando en el tiempo
-        for _ in range(5):
+        # después en 5 debería ir la variable iteraciones
+        for i in range(10):
             prox_reloj, nombre_proxEvento = self.proximoEvento(vectorEstado)
 
             # Asignamos el valor de prox_reloj al reloj actual y tambien el nombre del evento
             vectorEstado[0] = nombre_proxEvento
             vectorEstado[1] = prox_reloj
-            if (nombre_proxEvento == "Llegada futbol"):
-                # Aca iria la logica si llega un equipo de futbol
-                # Primero calculamos la proxima llegada de un equipo de futbol
-                vectorEstado[2] = self.calcularProxLlegadaFutbol(vectorEstado[1])
+            vectorEstado[11] = i
+            if i == 0:
+                if (nombre_proxEvento == "Llegada futbol"):
+                    # Aca iria la logica si llega un equipo de futbol
+                    # Primero calculamos la proxima llegada de un equipo de futbol
 
-                #luego calculo cuanto tiempo va a ocupar la cancha pero me falta el if que si no esta ocupada la cancha
-                vectorEstado[-10] = self.calcularFinOcupacionFutbol(vectorEstado[1])
+                    vectorEstado[3], vectorEstado[2] = self.calcularProxLlegadaFutbol(vectorEstado[1])
 
-                print(vectorEstado)
-            elif (nombre_proxEvento == "Llegada handball"):
-                # Aca iria la logica si llega handball
-                # Primero calculamos la proxima llegada de un equipo de futbol
-                vectorEstado[3] = self.calcularProxLlegadaHandball(vectorEstado[1])
+                    vectorEstado[4] = vectorEstado[3] + prox_reloj
 
-                #luego calculo cuanto tiempo va a ocupar la cancha
-                vectorEstado[-10] = self.calcularFinOcupacionHandball(vectorEstado[1])
+                    vectorEstado[13] = "Ocupado"
 
-                print(vectorEstado)
+                    #luego calculo cuanto tiempo va a ocupar la cancha pero me falta el if que si no esta ocupada la cancha
+                    vectorEstado[17], vectorEstado[16] = self.calcularFinOcupacionFutbol(vectorEstado[1])
+                    vectorEstado[18] = vectorEstado[17] + prox_reloj
+                    vectorEstado[25] = vectorEstado[18] + self.limpieza
 
-            elif(nombre_proxEvento == "Llegada basketball"):
-                # Aca iria la logica si llega un equipo de basketball
-                # Primero calculamos la proxima llegada de un equipo de futbol
-                vectorEstado[4] = self.calcularProxLlegadaBasketball(vectorEstado[1])
+                    objeto = ["futbol", "en cancha", vectorEstado[11]]
+                    vectorEstado.append(objeto)
+                    print(vectorEstado)
+                elif (nombre_proxEvento == "Llegada handball"):
+                    # Aca iria la logica si llega handball
 
-                #luego calculo cuanto tiempo va a ocupar la cancha
-                vectorEstado[-10] = self.calcularFinOcupacionBasketball(vectorEstado[1])
+                    vectorEstado[6], vectorEstado[5] = self.calcularProxLlegadaFutbol(vectorEstado[1])
 
-                print(vectorEstado)
-                
-            elif(nombre_proxEvento == "Fin Ocupacion"):
-                # Aca iria la logica si termina la ocupacion de cancha
-                cola = vectorEstado[5]
-                # Me falta en este if toda la parte de ver que equipo es el que sigue
-                if(cola > 0):
-                    # logica cuando tenemos equipos en cola
-                    pass
+                    vectorEstado[7] = vectorEstado[6] + prox_reloj
 
-            #Este print es solo para ver si funcionaba bien el metodo proximoEvento()
-            #print(prox_reloj, nombre_proxEvento)
+                    vectorEstado[13] = "Ocupado"
+
+                    #luego calculo cuanto tiempo va a ocupar la cancha
+                    vectorEstado[20], vectorEstado[19] = self.calcularFinOcupacionHandball(vectorEstado[1])
+                    vectorEstado[21] = vectorEstado[20] + prox_reloj
+                    vectorEstado[25] = vectorEstado[21] + self.limpieza
+
+                    objeto = ["handball", "en cancha", vectorEstado[11]]
+                    vectorEstado.append(objeto)
+
+                    print(vectorEstado)
+
+                elif(nombre_proxEvento == "Llegada basketball"):
+                    # Aca iria la logica si llega un equipo de basketball
+
+                    vectorEstado[9], vectorEstado[8] = self.calcularProxLlegadaFutbol(vectorEstado[1])
+
+                    vectorEstado[10] = vectorEstado[9] + prox_reloj
+
+                    vectorEstado[13] = "Ocupado"
+
+                    #luego calculo cuanto tiempo va a ocupar la cancha
+                    vectorEstado[23], vectorEstado[22] = self.calcularFinOcupacionHandball(vectorEstado[1])
+                    vectorEstado[24] = vectorEstado[23] + prox_reloj
+                    vectorEstado[21] = vectorEstado[24] + self.limpieza
+
+                    objeto = ["basketball", "en cancha", vectorEstado[11]]
+                    vectorEstado.append(objeto)
+
+                    print(vectorEstado)
+
+            elif i > 0:
+                if vectorEstado[25] > vectorEstado[4] or vectorEstado[25] > vectorEstado[7] or vectorEstado[25] > vectorEstado[10]:
+                    if (nombre_proxEvento == "Llegada futbol"):
+                        vectorEstado[3], vectorEstado[2] = self.calcularProxLlegadaFutbol(vectorEstado[1])
+
+                        vectorEstado[4] = vectorEstado[3] + prox_reloj
+
+                        objeto = ["futbol", "en cola", vectorEstado[11]]
+                        vectorEstado.append(objeto)
+
+                        print(vectorEstado)
+                    elif (nombre_proxEvento == "Llegada handball"):
+                        vectorEstado[6], vectorEstado[5] = self.calcularProxLlegadaFutbol(vectorEstado[1])
+
+                        vectorEstado[7] = vectorEstado[6] + prox_reloj
+
+                        objeto = ["handball", "en cola", vectorEstado[11]]
+                        vectorEstado.append(objeto)
+
+                        print(vectorEstado)
+
+                    elif (nombre_proxEvento == "Llegada basketball"):
+                        vectorEstado[9], vectorEstado[8] = self.calcularProxLlegadaFutbol(vectorEstado[1])
+
+                        vectorEstado[10] = vectorEstado[9] + prox_reloj
+
+                        objeto = ["basketball", "en cola", vectorEstado[11]]
+                        vectorEstado.append(objeto)
+
+                        print(vectorEstado)
+
+                elif vectorEstado[25] < vectorEstado[4] and vectorEstado[25] < vectorEstado[7] and vectorEstado[25] < vectorEstado[10]:
+
+                    if (nombre_proxEvento == "Fin Ocupacion futbol") or (nombre_proxEvento == "Fin Ocupacion handball") or (nombre_proxEvento == "Fin Ocupacion basketball"):
+                        if vectorEstado[28][0] == "futbol":
+                            vectorEstado[17], vectorEstado[16] = self.calcularFinOcupacionFutbol(vectorEstado[1])
+                            vectorEstado[18] = vectorEstado[17] + prox_reloj
+                            vectorEstado[25] = vectorEstado[18] + self.limpieza
+
+                            print(vectorEstado)
+
+                        elif vectorEstado[28][0] == "handball":
+                            vectorEstado[20], vectorEstado[19] = self.calcularFinOcupacionHandball(vectorEstado[1])
+                            vectorEstado[21] = vectorEstado[20] + prox_reloj
+                            vectorEstado[25] = vectorEstado[21] + self.limpieza
+
+                            print(vectorEstado)
+
+                        elif vectorEstado[28][0] == "basketball":
+                            vectorEstado[23], vectorEstado[22] = self.calcularFinOcupacionHandball(vectorEstado[1])
+                            vectorEstado[24] = vectorEstado[23] + prox_reloj
+                            vectorEstado[21] = vectorEstado[24] + self.limpieza
+
+                            print(vectorEstado)
 
 
 
     def proximoEvento(self, vectorEstado):
-        proximoRelojLlegada = [vectorEstado[2], vectorEstado[3], vectorEstado[4], vectorEstado[-10]]
+        proximoRelojLlegada = [vectorEstado[4], vectorEstado[7], vectorEstado[10], vectorEstado[25]]
 
         # Todo este if lo unico que hace es no devolver como primer evento el fin de ocupacion, cuando vale 0 en la primer "fila" de la tabla
         # en el evento de "Inicio"
-        if vectorEstado[-10] > 0:
+        if vectorEstado[25] > 0:
             # Encontrar el índice del valor mínimo en proximoRelojLlegada
             indice_minimo = proximoRelojLlegada.index(min(proximoRelojLlegada))
 
             # Asignar nombres de reloj según el índice
             nombres_reloj = ["Llegada futbol", "Llegada handball", "Llegada basketball", "Fin Ocupacion"]
+
+            # Verificar que vectorEstado[27] existe, es una lista y contiene al menos un elemento
+            if len(vectorEstado) > 27 and isinstance(vectorEstado[27], list) and len(vectorEstado[27]) > 0:
+                # Añadir la primera palabra del subvector a "Fin Ocupacion"
+                nombres_reloj[3] += " " + vectorEstado[27][0]
+
+
             nombre_reloj_minimo = nombres_reloj[indice_minimo]
 
             # Devolver el número de reloj y el nombre del próximo evento
@@ -610,41 +696,47 @@ class MyWindow(QMainWindow):
 
 
     # Todos los metodos de aca abajo son de calculo
-    def redondear_a_4_decimales(self, numero):
-        return round(numero, 4)
+    def redondear_a_2_decimales(self, numero):
+        return round(numero, 2)
     
     def calcularProxLlegadaFutbol(self, relojActual):
         #Esta funcion calcula y devuelve en que momento va a llegar el proximo equipo de futbol
         rnd = random.random()
-        rnd_exp = self.redondear_a_4_decimales(-(self.llegada_futbol) * math.log(1 - rnd))
-        return relojActual + rnd_exp
+        rnd_redondeado = self.redondear_a_2_decimales(rnd)
+        rnd_exp = self.redondear_a_2_decimales(-(self.llegada_futbol) * math.log(1 - rnd_redondeado))
+        return relojActual + rnd_exp, rnd_redondeado
     
     def calcularProxLlegadaHandball(self, relojActual):
         #Esta funcion calcula la proxima llegada de un equipo de handball
         rnd = random.random()
-        rnd_unif = self.llegada_hand_a + rnd * (self.llegada_hand_b - self.llegada_hand_a)
-        return self.redondear_a_4_decimales(relojActual + rnd_unif)
+        rnd_redondeado = self.redondear_a_2_decimales(rnd)
+        rnd_unif = self.llegada_hand_a + rnd_redondeado * self.llegada_hand_b
+        return self.redondear_a_2_decimales(relojActual + rnd_unif), rnd_redondeado
     
     def calcularProxLlegadaBasketball(self, relojActual):
         #Esta funcion calcula la proxima llegada de un equipo de basketball
         rnd = random.random()
-        rnd_unif = self.llegada_basket_a + rnd * (self.llegada_basket_a - self.llegada_basket_b)
-        return self.redondear_a_4_decimales(relojActual + rnd_unif)
+        rnd_redondeado = self.redondear_a_2_decimales(rnd)
+        rnd_unif = self.llegada_basket_a + rnd_redondeado * self.llegada_basket_b
+        return self.redondear_a_2_decimales(relojActual + rnd_unif), rnd_redondeado
     
     def calcularFinOcupacionFutbol(self, relojActual):
         rnd = random.random()
-        rnd_unif = self.ocupacion_futbol_a + rnd * (self.ocupacion_futbol_a - self.ocupacion_futbol_b)
-        return self.redondear_a_4_decimales(relojActual + rnd_unif)
+        rnd_redondeado = self.redondear_a_2_decimales(rnd)
+        rnd_unif = self.ocupacion_futbol_a + rnd_redondeado * self.ocupacion_futbol_b
+        return self.redondear_a_2_decimales(relojActual + rnd_unif), rnd_redondeado
     
     def calcularFinOcupacionHandball(self, relojActual):
         rnd = random.random()
-        rnd_unif = self.ocupacion_hand_a + rnd * (self.ocupacion_hand_a - self.ocupacion_hand_b)
-        return self.redondear_a_4_decimales(relojActual + rnd_unif)
+        rnd_redondeado = self.redondear_a_2_decimales(rnd)
+        rnd_unif = self.ocupacion_hand_a + rnd_redondeado * self.ocupacion_hand_b
+        return self.redondear_a_2_decimales(relojActual + rnd_unif), rnd_redondeado
     
     def calcularFinOcupacionBasketball(self, relojActual):
         rnd = random.random()
-        rnd_unif = self.ocupacion_basket_a + rnd * (self.ocupacion_basket_a - self.ocupacion_basket_b)
-        return self.redondear_a_4_decimales(relojActual + rnd_unif)
+        rnd_redondeado = self.redondear_a_2_decimales(rnd)
+        rnd_unif = self.ocupacion_basket_a + rnd * self.ocupacion_basket_b
+        return self.redondear_a_2_decimales(relojActual + rnd_unif), rnd_redondeado
 
 
 if __name__ == "__main__":
