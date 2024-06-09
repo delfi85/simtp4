@@ -28,6 +28,8 @@ class MyWindow(QMainWindow):
         self.inicial_cant_grupos = "5"
         self.inicial_filas_mostrar = "10"
         self.inicial_fila_desde = "10"
+        # Declaro la variable cola acá para poder utilizarla en las funciones que quiera
+        self.cola = []
         self.init_main_window()
 
         # Guarda los valores iniciales de los campos de entrada
@@ -537,16 +539,37 @@ class MyWindow(QMainWindow):
         vectorEstado = ["Inicio", 0, rnd_futbol_llegada, 0, tiempo_llegada_futbol, rnd_hand_llegada, 0, tiempo_llegada_hand,
                         rnd_basket_llegada, 0, tiempo_llegada_basket, 0, "", "Libre", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] #-10 es la finalizacion de la ocupacion
         print(vectorEstado)
-        
+
         # Todo esto iria en un for o en un while que vaya iterando en el tiempo
         # después en 5 debería ir la variable iteraciones
-        for i in range(10):
+        for i in range(20):
             prox_reloj, nombre_proxEvento = self.proximoEvento(vectorEstado)
-
+            print(self.cola)
             # Asignamos el valor de prox_reloj al reloj actual y tambien el nombre del evento
             vectorEstado[0] = nombre_proxEvento
             vectorEstado[1] = prox_reloj
-            vectorEstado[11] = i
+
+            # Acá voy viendo el tamaño que tiene el vector cola, en la primera iteración 0 va a dar bien y va a
+            # a estar en 0, luego para actualizar este contador en fin ocupación y descontarlo también
+            # lo actualicé en esos casos
+            vectorEstado[11] = len(self.cola)
+
+            # Verifico que el vector cola sea mayor a 2 ya que no puedo ejecutar la función porque es solo
+            # para la prioridad en el caso de que basketball se encuentre en la posición 1 del vector
+            if len(self.cola) > 2:
+                # La función me va a devolver por ejemplo: si tengo el vector cola como
+                # cola = ["futbol", "basketball", "handball"]
+                # me va a devolver: cola = ["futbol", "handball", "basketball"]
+                self.verificar_prioridad_cola()
+
+            if i > 2:
+                # Esto hace lo mismo que arriba pero en el caso de los vectores de los objetos
+                # Lo que hago es decir, si tengo ["basketball", "en cola", 1] ["handball", "en cola", 2]
+                # Esto lo que va a hacer es cambiar las posiciones ["basketball", "en cola", 2] ["handball", "en cola", 1]
+                # También después verifica en el caso de que el vector que siga después de basketball ya esté en
+                # estado "en cancha", en ese caso sigue de largo y busca al que si esté en cola
+                self.verificar_prioridad_objeto(vectorEstado)
+
             if i == 0:
                 if (nombre_proxEvento == "Llegada futbol"):
                     # Aca iria la logica si llega un equipo de futbol
@@ -565,6 +588,8 @@ class MyWindow(QMainWindow):
 
                     objeto = ["futbol", "en cancha", vectorEstado[11]]
                     vectorEstado.append(objeto)
+                    # Voy agregando los nombres al vector cola
+                    self.cola.append(objeto[0])
                     print(vectorEstado)
                 elif (nombre_proxEvento == "Llegada handball"):
                     # Aca iria la logica si llega handball
@@ -582,6 +607,8 @@ class MyWindow(QMainWindow):
 
                     objeto = ["handball", "en cancha", vectorEstado[11]]
                     vectorEstado.append(objeto)
+                    # Voy agregando los nombres al vector cola
+                    self.cola.append(objeto[0])
 
                     print(vectorEstado)
 
@@ -597,67 +624,89 @@ class MyWindow(QMainWindow):
                     #luego calculo cuanto tiempo va a ocupar la cancha
                     vectorEstado[23], vectorEstado[22] = self.calcularFinOcupacionHandball(vectorEstado[1])
                     vectorEstado[24] = vectorEstado[23] + prox_reloj
-                    vectorEstado[21] = vectorEstado[24] + self.limpieza
+                    vectorEstado[25] = vectorEstado[24] + self.limpieza
 
                     objeto = ["basketball", "en cancha", vectorEstado[11]]
                     vectorEstado.append(objeto)
+                    # Voy agregando los nombres al vector cola
+                    self.cola.append(objeto[0])
 
                     print(vectorEstado)
 
             elif i > 0:
-                if vectorEstado[25] > vectorEstado[4] or vectorEstado[25] > vectorEstado[7] or vectorEstado[25] > vectorEstado[10]:
-                    if (nombre_proxEvento == "Llegada futbol"):
-                        vectorEstado[3], vectorEstado[2] = self.calcularProxLlegadaFutbol(vectorEstado[1])
+                if (nombre_proxEvento == "Llegada futbol"):
+                    vectorEstado[3], vectorEstado[2] = self.calcularProxLlegadaFutbol(vectorEstado[1])
 
-                        vectorEstado[4] = vectorEstado[3] + prox_reloj
+                    vectorEstado[4] = vectorEstado[3] + prox_reloj
 
-                        objeto = ["futbol", "en cola", vectorEstado[11]]
-                        vectorEstado.append(objeto)
+                    objeto = ["futbol", "en cola", vectorEstado[11]]
+                    vectorEstado.append(objeto)
+                    # Voy agregando los nombres al vector cola
+                    self.cola.append(objeto[0])
 
+                    print(vectorEstado)
+                elif (nombre_proxEvento == "Llegada handball"):
+                    vectorEstado[6], vectorEstado[5] = self.calcularProxLlegadaFutbol(vectorEstado[1])
+
+                    vectorEstado[7] = vectorEstado[6] + prox_reloj
+
+                    objeto = ["handball", "en cola", vectorEstado[11]]
+                    vectorEstado.append(objeto)
+                    # Voy agregando los nombres al vector cola
+                    self.cola.append(objeto[0])
+
+                    print(vectorEstado)
+
+                elif (nombre_proxEvento == "Llegada basketball"):
+                    vectorEstado[9], vectorEstado[8] = self.calcularProxLlegadaFutbol(vectorEstado[1])
+
+                    vectorEstado[10] = vectorEstado[9] + prox_reloj
+
+                    objeto = ["basketball", "en cola", vectorEstado[11]]
+                    vectorEstado.append(objeto)
+                    # Voy agregando los nombres al vector cola
+                    self.cola.append(objeto[0])
+
+                    print(vectorEstado)
+
+                elif (nombre_proxEvento == "Fin Ocupacion futbol") or (nombre_proxEvento == "Fin Ocupacion handball") or (nombre_proxEvento == "Fin Ocupacion basketball"):
+                    # Acá lo que hago es verificar qué equipo está en posición 1 en la cola para poder calcular
+                    # el tiempo de ocupación de ese equipo en la misma fila que apareció el evento Fin Ocupación
+                    # del equipo que estaba en posición 0
+                    if self.cola[1] == "futbol":
+                        vectorEstado[17], vectorEstado[16] = self.calcularFinOcupacionFutbol(vectorEstado[1])
+                        vectorEstado[18] = vectorEstado[17] + prox_reloj
+                        vectorEstado[25] = vectorEstado[18] + self.limpieza
+
+                        # Acá llamo a esta función ya que si llegó este evento de fin ocupación debo pasar el equipo
+                        # que termino de ocupar a destruido y el que estaba en posición 1 a que esté en cancha
+                        # y además actualizar las posiciones de los demás objetos en cola
+                        self.actualizar_vectores(vectorEstado)
+                        # borro en el vector cola el equipo en posición 0 ya que termino de ocupar la cancha
+                        self.cola.pop(0)
+                        # actualizo el contador cola porque uno que estaba en fila entro a la cancha
+                        vectorEstado[11] = len(self.cola) - 1
                         print(vectorEstado)
-                    elif (nombre_proxEvento == "Llegada handball"):
-                        vectorEstado[6], vectorEstado[5] = self.calcularProxLlegadaFutbol(vectorEstado[1])
 
-                        vectorEstado[7] = vectorEstado[6] + prox_reloj
+                    elif self.cola[1] == "handball":
+                        vectorEstado[20], vectorEstado[19] = self.calcularFinOcupacionHandball(vectorEstado[1])
+                        vectorEstado[21] = vectorEstado[20] + prox_reloj
+                        vectorEstado[25] = vectorEstado[21] + self.limpieza
 
-                        objeto = ["handball", "en cola", vectorEstado[11]]
-                        vectorEstado.append(objeto)
-
+                        self.actualizar_vectores(vectorEstado)
+                        self.cola.pop(0)
+                        vectorEstado[11] = len(self.cola) - 1
                         print(vectorEstado)
 
-                    elif (nombre_proxEvento == "Llegada basketball"):
-                        vectorEstado[9], vectorEstado[8] = self.calcularProxLlegadaFutbol(vectorEstado[1])
+                    elif self.cola[1] == "basketball":
+                        vectorEstado[23], vectorEstado[22] = self.calcularFinOcupacionHandball(vectorEstado[1])
+                        vectorEstado[24] = vectorEstado[23] + prox_reloj
+                        vectorEstado[25] = vectorEstado[24] + self.limpieza
 
-                        vectorEstado[10] = vectorEstado[9] + prox_reloj
-
-                        objeto = ["basketball", "en cola", vectorEstado[11]]
-                        vectorEstado.append(objeto)
-
+                        self.actualizar_vectores(vectorEstado)
+                        self.cola.pop(0)
+                        vectorEstado[11] = len(self.cola) - 1
                         print(vectorEstado)
-
-                elif vectorEstado[25] < vectorEstado[4] and vectorEstado[25] < vectorEstado[7] and vectorEstado[25] < vectorEstado[10]:
-
-                    if (nombre_proxEvento == "Fin Ocupacion futbol") or (nombre_proxEvento == "Fin Ocupacion handball") or (nombre_proxEvento == "Fin Ocupacion basketball"):
-                        if vectorEstado[28][0] == "futbol":
-                            vectorEstado[17], vectorEstado[16] = self.calcularFinOcupacionFutbol(vectorEstado[1])
-                            vectorEstado[18] = vectorEstado[17] + prox_reloj
-                            vectorEstado[25] = vectorEstado[18] + self.limpieza
-
-                            print(vectorEstado)
-
-                        elif vectorEstado[28][0] == "handball":
-                            vectorEstado[20], vectorEstado[19] = self.calcularFinOcupacionHandball(vectorEstado[1])
-                            vectorEstado[21] = vectorEstado[20] + prox_reloj
-                            vectorEstado[25] = vectorEstado[21] + self.limpieza
-
-                            print(vectorEstado)
-
-                        elif vectorEstado[28][0] == "basketball":
-                            vectorEstado[23], vectorEstado[22] = self.calcularFinOcupacionHandball(vectorEstado[1])
-                            vectorEstado[24] = vectorEstado[23] + prox_reloj
-                            vectorEstado[21] = vectorEstado[24] + self.limpieza
-
-                            print(vectorEstado)
 
 
 
@@ -670,14 +719,13 @@ class MyWindow(QMainWindow):
             # Encontrar el índice del valor mínimo en proximoRelojLlegada
             indice_minimo = proximoRelojLlegada.index(min(proximoRelojLlegada))
 
-            # Asignar nombres de reloj según el índice
             nombres_reloj = ["Llegada futbol", "Llegada handball", "Llegada basketball", "Fin Ocupacion"]
 
-            # Verificar que vectorEstado[27] existe, es una lista y contiene al menos un elemento
-            if len(vectorEstado) > 27 and isinstance(vectorEstado[27], list) and len(vectorEstado[27]) > 0:
+            # Acá lo que hago es que si llegue al evento Fin Ocupación debo saber cuál de todos los equipos
+            # terminó de desocupar la cancha por eso concateno la string que está en la posición 0 en el vector cola
+            if len(self.cola) > 0:
                 # Añadir la primera palabra del subvector a "Fin Ocupacion"
-                nombres_reloj[3] += " " + vectorEstado[27][0]
-
+                nombres_reloj[3] += " " + self.cola[0]
 
             nombre_reloj_minimo = nombres_reloj[indice_minimo]
 
@@ -694,17 +742,99 @@ class MyWindow(QMainWindow):
         return proximoRelojLlegada[indice_minimo], nombre_reloj_minimo
 
 
+    def actualizar_vectores(self, vector_estado):
+        # Buscar el vector en la posición "en cancha"
+        indice_en_cancha = None
+        for i, vector in enumerate(vector_estado):
+            if isinstance(vector, list) and vector[1] == "en cancha":
+                indice_en_cancha = i
+                break
 
-    # Todos los metodos de aca abajo son de calculo
+        if indice_en_cancha is not None:
+            # Cambiar el estado del equipo en cancha a "destruido"
+            vector_estado[indice_en_cancha][1] = "destruido"
+
+            # Verificar si no hay equipo en posición 0 y en cancha
+            if all(vector[1] != "en cancha" for vector in vector_estado if isinstance(vector, list) and vector[2] == 1):
+                # Buscar el siguiente equipo en cola con la posición más baja
+                indice_en_cola = None
+                posicion_en_cola_minima = float('inf')  # Inicializar con un valor grande
+                for i, vector in enumerate(vector_estado):
+                    if isinstance(vector, list) and vector[1] == "en cola" and vector[2] < posicion_en_cola_minima:
+                        indice_en_cola = i
+                        posicion_en_cola_minima = vector[2]
+
+                # Mover el equipo en cola con la posición más baja a la cancha
+                if indice_en_cola is not None:
+                    vector_estado[indice_en_cola][1] = "en cancha"
+                    vector_estado[indice_en_cola][2] = 0
+
+                # Ajustar las posiciones de los equipos restantes en cola
+                for vector in vector_estado:
+                    if isinstance(vector, list) and vector[1] == "en cola" and vector[2] > 0:
+                        vector[2] -= 1
+
+        return vector_estado
+
+    def verificar_prioridad_cola(self):
+        # Verificar si el equipo en posición 1 es basketball y en la posición 2 está futbol o handball
+        if self.cola[1] == "basketball" and self.cola[2] in ["futbol", "handball"]:
+            # Intercambiar las posiciones de basketball y el equipo siguiente en el vector cola
+            self.cola[1], self.cola[2] = self.cola[2], self.cola[1]
+
+    def verificar_prioridad_objeto(self, vector_estado):
+        indice_en_cola = self.obtener_indice_en_cola(vector_estado)
+        if indice_en_cola is not None:
+            # Verificar si el equipo en posición 1 es basketball y en la posición 2 está futbol o handball
+            if vector_estado[indice_en_cola][0] == "basketball" and \
+                    vector_estado[min(indice_en_cola + 1, len(vector_estado) - 1)][0] in ["futbol", "handball"]:
+                vector_estado[indice_en_cola][2] = 2
+
+                # Esto lo debo hacer ya que al quedar el vector objeto de basketball antes que los que empiezan a
+                # entrar en cancha me ponía como ["handball", "en cancha", 1], entonces, lo que hice es si después
+                # se encuentra este tipo de casos que siga de largo y me busque al que esté en cola y lo cambie
+                # de posición 2 a 1
+
+                siguiente_indice = min(indice_en_cola + 1, len(vector_estado) - 1)
+                while siguiente_indice < len(vector_estado):
+                    if vector_estado[siguiente_indice][1] == "en cola":
+                        vector_estado[siguiente_indice][2] = 1
+                        break
+                    siguiente_indice += 1
+        return vector_estado
+
+    # Esto da lo mismo si está adentro de la otra función o no, lo separé porque antes la anterior función
+    # la había querido combinar con la prioridad cola y bueno quedó así separado
+    def obtener_indice_en_cola(self, vector_estado):
+        # Buscar el siguiente equipo en cola
+        indice_en_cola = None
+        for i, vector in enumerate(vector_estado):
+            if isinstance(vector, list) and vector[1] == "en cola" and vector[2] == 1:
+                indice_en_cola = i
+                break
+        return indice_en_cola
+
+    # Acá quise aplicar string y después pasarlo a float para usar los números pero no se puede al pasarlo a float
+    # sigue mostrando una cantidad de decimales gigantes así que directamente aplicar el format en el frontend de la
+    # tabla
     def redondear_a_2_decimales(self, numero):
         return round(numero, 2)
     
     def calcularProxLlegadaFutbol(self, relojActual):
         #Esta funcion calcula y devuelve en que momento va a llegar el proximo equipo de futbol
-        rnd = random.random()
-        rnd_redondeado = self.redondear_a_2_decimales(rnd)
-        rnd_exp = self.redondear_a_2_decimales(-(self.llegada_futbol) * math.log(1 - rnd_redondeado))
-        return relojActual + rnd_exp, rnd_redondeado
+
+        #Coloqué este while ya que si da 1 me da error en el logaritmo
+        while True:
+            rnd = random.random()
+            rnd_redondeado = self.redondear_a_2_decimales(rnd)
+            # Check to avoid 0 and 1
+            if 0 < rnd_redondeado < 1:
+                break
+
+        rnd_exponencial = rnd_redondeado
+
+        rnd_exp = self.redondear_a_2_decimales(-(self.llegada_futbol) * math.log(1 - rnd_exponencial))
+        return relojActual + rnd_exp, rnd_exponencial
     
     def calcularProxLlegadaHandball(self, relojActual):
         #Esta funcion calcula la proxima llegada de un equipo de handball
