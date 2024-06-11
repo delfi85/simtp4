@@ -315,6 +315,14 @@ class MyWindow(QMainWindow):
         i = self.tableWidgetSecond.rowCount()
         # Inserta una nueva fila en la tabla en la posición 'i'
         self.tableWidgetSecond.insertRow(i)
+
+        # Calcula el número necesario de columnas, considerando tanto los datos como los objetos
+        num_columnas_necesarias = len(fila)
+
+        # Ajusta el número de columnas de la tabla si es necesario
+        while self.tableWidgetSecond.columnCount() < num_columnas_necesarias:
+            self.tableWidgetSecond.insertColumn(self.tableWidgetSecond.columnCount())
+
         # Inicializa el índice de la columna a 0
         j = 0
         # Establece el índice de la columna inicial para los objetos
@@ -333,18 +341,25 @@ class MyWindow(QMainWindow):
                 self.tableWidgetSecond.setItem(i, column_index, QTableWidgetItem(str(item)))
                 # Verifica si es necesario añadir una nueva columna para el objeto
                 if self.tableWidgetSecond.columnCount() <= column_index:
-                    # Añadir columna
                     self.tableWidgetSecond.insertColumn(column_index)
-                    # Añadir título de la columna
+                # Añadir título de la columna si no existe
+                if self.tableWidgetSecond.horizontalHeaderItem(column_index) is None:
                     self.tableWidgetSecond.setHorizontalHeaderItem(column_index,
                                                                    QTableWidgetItem(f"Objeto {object_count}"))
                 # Incrementa el índice de la columna para los próximos objetos
                 column_index += 1
             else:
                 # Si el elemento no es una lista, lo inserta directamente en la tabla en la fila 'i' y la columna 'j'
+                # Formatea el número si es un float
+                if isinstance(item, float):
+                    item = f"{item:.2f}"
                 self.tableWidgetSecond.setItem(i, j, QTableWidgetItem(str(item)))
                 # Incrementa el índice de la columna
                 j += 1
+
+        # Ajusta el número de columnas para los objetos si es necesario
+        while self.tableWidgetSecond.columnCount() < column_index:
+            self.tableWidgetSecond.insertColumn(self.tableWidgetSecond.columnCount())
 
     def create_input_field(self, text):
         layout = QHBoxLayout()
