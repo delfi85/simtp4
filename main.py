@@ -30,6 +30,7 @@ class MyWindow(QMainWindow):
         self.inicial_fila_desde = "10"
         # Declaro la variable cola acá para poder utilizarla en las funciones que quiera
         self.cola = []
+        self.cant_partidos = 0
         self.bandera_retiro = False
         self.init_main_window()
 
@@ -276,6 +277,9 @@ class MyWindow(QMainWindow):
         self.cant_grupos = 0
         self.filas_mostrar = 0
         self.fila_desde = 0
+        self.cola = []
+        self.bandera_retiro = False
+        self.cant_partidos = 0
 
     def cancel_action(self):
         self.close()
@@ -353,13 +357,54 @@ class MyWindow(QMainWindow):
                 # Formatea el número si es un float
                 if isinstance(item, float):
                     item = f"{item:.2f}"
-                self.tableWidgetSecond.setItem(i, j, QTableWidgetItem(str(item)))
+                # Crea un QTableWidgetItem para el dato
+                item_widget = QTableWidgetItem(str(item))
+                # Centra el texto en la columna
+                item_widget.setTextAlignment(Qt.AlignCenter)
+                self.tableWidgetSecond.setItem(i, j, item_widget)
                 # Incrementa el índice de la columna
                 j += 1
 
         # Ajusta el número de columnas para los objetos si es necesario
         while self.tableWidgetSecond.columnCount() < column_index:
             self.tableWidgetSecond.insertColumn(self.tableWidgetSecond.columnCount())
+
+        for col in range(self.tableWidgetSecond.columnCount()):
+            self.tableWidgetSecond.setColumnWidth(col, 500)
+
+    def agregar_fila_flotante(self, vector_final):
+        # Asegura que haya suficientes columnas para el vector final
+        columnas_necesarias = max(29 + len(vector_final[1:4]), 31 + 1)
+        while self.tableWidgetSecond.columnCount() < columnas_necesarias:
+            self.tableWidgetSecond.insertColumn(self.tableWidgetSecond.columnCount())
+
+        # Inserta una nueva fila al final para la fila flotante
+        i = self.tableWidgetSecond.rowCount()
+        self.tableWidgetSecond.insertRow(i)
+
+        # Inserta las celdas correspondientes en la fila flotante
+        item_widget = QTableWidgetItem(vector_final[0])
+        item_widget.setTextAlignment(Qt.AlignCenter)
+        self.tableWidgetSecond.setItem(i, 27, item_widget)
+
+        for k in range(3):
+            valor = vector_final[k + 1]
+            if isinstance(valor, float):
+                valor = f"{valor:.2f}"
+            item_widget = QTableWidgetItem(str(valor))
+            item_widget.setTextAlignment(Qt.AlignCenter)
+            self.tableWidgetSecond.setItem(i, 28 + k, item_widget)
+
+        item_widget = QTableWidgetItem(vector_final[4])
+        item_widget.setTextAlignment(Qt.AlignCenter)
+        self.tableWidgetSecond.setItem(i, 31, item_widget)
+
+        valor = vector_final[5]
+        if isinstance(valor, float):
+            valor = f"{valor:.2f}"
+        item_widget = QTableWidgetItem(str(valor))
+        item_widget.setTextAlignment(Qt.AlignCenter)
+        self.tableWidgetSecond.setItem(i, 32, item_widget)
 
     def create_input_field(self, text):
         layout = QHBoxLayout()
@@ -459,7 +504,7 @@ class MyWindow(QMainWindow):
              "Hand Fin Ocupación", "Basket RND", "Basket Tiempo de Ocupación",
              "Basket Fin Ocupación", "Tiempo de Limpieza", "Tiempo de Espera", "Cantidad Grupos Fútbol", "Cantidad Grupos Hand",
              "Cantidad Grupos Basket", "Fútbol Tiempo de espera acumulado", "Hand Tiempo de espera acumulado",
-             "Basket Tiempo de espera acumulado", "Tiempo personal de limpieza acumulado"])
+             "Basket Tiempo de espera acumulado", "Tiempo de limpieza acumulado"])
         #Ver dónde o cómo podría poner la tasa de limpieza y el promedio a calcular
 
         self.iniciar_simulacion(iteraciones, limpieza, llegada_futbol, llegada_hand_a, llegada_hand_b, llegada_basket_a,
@@ -508,6 +553,8 @@ class MyWindow(QMainWindow):
         # Variables para controlar la iteración desde fila_desde
         se_alcanzo_fila_desde = False
         primera_iteracion_fila_desde = None
+
+        limpieza = limpieza / 60
 
         # Todo esto iria en un for o en un while que vaya iterando en el tiempo
         # después en 5 debería ir la variable iteraciones
@@ -702,6 +749,8 @@ class MyWindow(QMainWindow):
                         self.cola.pop(0)
                         # actualizo el contador cola porque uno que estaba en fila entro a la cancha
                         vectorEstado[11] = len(self.cola) - 1
+
+                        self.cant_partidos += 1
                         print(vectorEstado)
 
                     elif self.cola[1] == "handball":
@@ -715,6 +764,7 @@ class MyWindow(QMainWindow):
                         vectorEstado[29] += tiempo_espera_handball
                         self.cola.pop(0)
                         vectorEstado[11] = len(self.cola) - 1
+                        self.cant_partidos += 1
                         print(vectorEstado)
 
                     elif self.cola[1] == "basketball":
@@ -728,6 +778,7 @@ class MyWindow(QMainWindow):
                         vectorEstado[30] += tiempo_espera_basket
                         self.cola.pop(0)
                         vectorEstado[11] = len(self.cola) - 1
+                        self.cant_partidos += 1
                         print(vectorEstado)
 
             # Verificar si se alcanzó la fila desde
@@ -738,6 +789,10 @@ class MyWindow(QMainWindow):
             # Verificar si estamos dentro del rango de filas a mostrar
             if se_alcanzo_fila_desde and (i >= primera_iteracion_fila_desde and i <= filas_mostrar) or i == iteraciones - 1:
                 self.insertar_en_tabla(vectorEstado)
+
+                if i == iteraciones - 1:
+                    vectorCalculo = self.fila_calculo(vectorEstado)
+                    self.agregar_fila_flotante(vectorCalculo)
 
     def proximoEvento(self, vectorEstado):
         proximoRelojLlegada = [vectorEstado[4], vectorEstado[7], vectorEstado[10], vectorEstado[23]]
@@ -858,6 +913,19 @@ class MyWindow(QMainWindow):
 
         return bandera
 
+
+    def fila_calculo(self, vectorEstado):
+        vector_final = ["PROMEDIO DE ESPERA", 0, 0, 0, "TASA DE LIMPIEZA", 0]
+
+        vector_final[1] = vectorEstado[28]/vectorEstado[25]
+        vector_final[2] = vectorEstado[29]/vectorEstado[26]
+        vector_final[3] = vectorEstado[30]/vectorEstado[27]
+        valor = (vectorEstado[31] / self.cant_partidos) * 100
+        print(self.cant_partidos)
+        vector_final[5] = f"{valor:.2f}%"
+
+        return vector_final
+
     # Acá quise aplicar string y después pasarlo a float para usar los números pero no se puede al pasarlo a float
     # sigue mostrando una cantidad de decimales gigantes así que directamente aplicar el format en el frontend de la
     # tabla
@@ -897,18 +965,24 @@ class MyWindow(QMainWindow):
     def calcularFinOcupacionFutbol(self, relojActual, ocupacion_futbol_a, ocupacion_futbol_b):
         rnd = random.random()
         rnd_redondeado = self.redondear_a_2_decimales(rnd)
+        ocupacion_futbol_a = ocupacion_futbol_a / 60
+        ocupacion_futbol_b = ocupacion_futbol_b / 60
         rnd_unif = ocupacion_futbol_a + rnd_redondeado * ocupacion_futbol_b
         return self.redondear_a_2_decimales(relojActual + rnd_unif), rnd_redondeado
     
     def calcularFinOcupacionHandball(self, relojActual, ocupacion_hand_a, ocupacion_hand_b):
         rnd = random.random()
         rnd_redondeado = self.redondear_a_2_decimales(rnd)
+        ocupacion_hand_a = ocupacion_hand_a / 60
+        ocupacion_hand_b = ocupacion_hand_b / 60
         rnd_unif = ocupacion_hand_a + rnd_redondeado * ocupacion_hand_b
         return self.redondear_a_2_decimales(relojActual + rnd_unif), rnd_redondeado
     
     def calcularFinOcupacionBasketball(self, relojActual, ocupacion_basket_a, ocupacion_basket_b):
         rnd = random.random()
         rnd_redondeado = self.redondear_a_2_decimales(rnd)
+        ocupacion_basket_a = ocupacion_basket_a / 60
+        ocupacion_basket_b = ocupacion_basket_b / 60
         rnd_unif = ocupacion_basket_a + rnd * ocupacion_basket_b
         return self.redondear_a_2_decimales(relojActual + rnd_unif), rnd_redondeado
 
