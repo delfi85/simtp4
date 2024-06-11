@@ -539,7 +539,7 @@ class MyWindow(QMainWindow):
                     vectorEstado[16] = vectorEstado[15] + prox_reloj
                     vectorEstado[23] = vectorEstado[16] + limpieza
 
-                    vectorEstado[31] += self.limpieza
+                    
                     objeto = ["futbol", "en cancha", vectorEstado[11], prox_reloj]
                     vectorEstado.append(objeto)
                     # Voy agregando los nombres al vector cola
@@ -560,7 +560,7 @@ class MyWindow(QMainWindow):
                     vectorEstado[19] = vectorEstado[18] + prox_reloj
                     vectorEstado[23] = vectorEstado[19] + limpieza
 
-                    vectorEstado[31] += self.limpieza
+                    
                     objeto = ["handball", "en cancha", vectorEstado[11], prox_reloj]
                     vectorEstado.append(objeto)
                     # Voy agregando los nombres al vector cola
@@ -582,7 +582,7 @@ class MyWindow(QMainWindow):
                     vectorEstado[22] = vectorEstado[21] + prox_reloj
                     vectorEstado[23] = vectorEstado[22] + limpieza
 
-                    vectorEstado[31] += self.limpieza
+                    
                     objeto = ["basketball", "en cancha", vectorEstado[11], prox_reloj]
                     vectorEstado.append(objeto)
                     # Voy agregando los nombres al vector cola
@@ -674,13 +674,14 @@ class MyWindow(QMainWindow):
                         vectorEstado[15], vectorEstado[14] = self.calcularFinOcupacionFutbol(vectorEstado[1], ocupacion_futbol_a, ocupacion_futbol_b)
                         vectorEstado[16] = vectorEstado[15] + prox_reloj
                         vectorEstado[23] = vectorEstado[16] + limpieza
-                        vectorEstado[31] += self.limpieza
+                        vectorEstado[31] += limpieza
                         # Acá llamo a esta función ya que si llegó este evento de fin ocupación debo pasar el equipo
                         # que termino de ocupar a destruido y el que estaba en posición 1 a que esté en cancha
                         # y además actualizar las posiciones de los demás objetos en cola
                         self.actualizar_vectores(vectorEstado)
 
                         tiempo_espera_futbol = vectorEstado[24]
+                        print(tiempo_espera_futbol)
                         vectorEstado[28] += tiempo_espera_futbol
                         # borro en el vector cola el equipo en posición 0 ya que termino de ocupar la cancha
                         self.cola.pop(0)
@@ -692,7 +693,7 @@ class MyWindow(QMainWindow):
                         vectorEstado[18], vectorEstado[17] = self.calcularFinOcupacionHandball(vectorEstado[1], ocupacion_hand_a, ocupacion_hand_b)
                         vectorEstado[19] = vectorEstado[18] + prox_reloj
                         vectorEstado[23] = vectorEstado[19] + limpieza
-                        vectorEstado[31] += self.limpieza
+                        vectorEstado[31] += limpieza
                         self.actualizar_vectores(vectorEstado)
 
                         tiempo_espera_handball = vectorEstado[24]
@@ -705,7 +706,7 @@ class MyWindow(QMainWindow):
                         vectorEstado[21], vectorEstado[20] = self.calcularFinOcupacionHandball(vectorEstado[1], ocupacion_hand_a, ocupacion_hand_b)
                         vectorEstado[22] = vectorEstado[21] + prox_reloj
                         vectorEstado[23] = vectorEstado[22] + limpieza
-                        vectorEstado[31] += self.limpieza
+                        vectorEstado[31] += limpieza
                         self.actualizar_vectores(vectorEstado)
 
                         tiempo_espera_basket = vectorEstado[24]
