@@ -539,10 +539,12 @@ class MyWindow(QMainWindow):
                     vectorEstado[16] = vectorEstado[15] + prox_reloj
                     vectorEstado[23] = vectorEstado[16] + limpieza
 
-                    objeto = ["futbol", "en cancha", vectorEstado[11]]
+                    vectorEstado[31] += self.limpieza
+                    objeto = ["futbol", "en cancha", vectorEstado[11], prox_reloj]
                     vectorEstado.append(objeto)
                     # Voy agregando los nombres al vector cola
                     self.cola.append(objeto[0])
+                    vectorEstado[25] += 1
                     print(vectorEstado)
                 elif (nombre_proxEvento == "Llegada handball"):
                     # Aca iria la logica si llega handball
@@ -558,11 +560,12 @@ class MyWindow(QMainWindow):
                     vectorEstado[19] = vectorEstado[18] + prox_reloj
                     vectorEstado[23] = vectorEstado[19] + limpieza
 
-                    objeto = ["handball", "en cancha", vectorEstado[11]]
+                    vectorEstado[31] += self.limpieza
+                    objeto = ["handball", "en cancha", vectorEstado[11], prox_reloj]
                     vectorEstado.append(objeto)
                     # Voy agregando los nombres al vector cola
                     self.cola.append(objeto[0])
-
+                    vectorEstado[26] += 1
                     print(vectorEstado)
 
                 elif(nombre_proxEvento == "Llegada basketball"):
@@ -579,11 +582,12 @@ class MyWindow(QMainWindow):
                     vectorEstado[22] = vectorEstado[21] + prox_reloj
                     vectorEstado[23] = vectorEstado[22] + limpieza
 
-                    objeto = ["basketball", "en cancha", vectorEstado[11]]
+                    vectorEstado[31] += self.limpieza
+                    objeto = ["basketball", "en cancha", vectorEstado[11], prox_reloj]
                     vectorEstado.append(objeto)
                     # Voy agregando los nombres al vector cola
                     self.cola.append(objeto[0])
-
+                    vectorEstado[27] += 1
                     print(vectorEstado)
 
             elif i > 0:
@@ -595,17 +599,18 @@ class MyWindow(QMainWindow):
 
                         vectorEstado[4] = vectorEstado[3] + prox_reloj
 
-                        objeto = ["futbol", "en cola", vectorEstado[11]]
+                        objeto = ["futbol", "en cola", vectorEstado[11], prox_reloj]
                         vectorEstado.append(objeto)
                         # Voy agregando los nombres al vector cola
                         self.cola.append(objeto[0])
+                        vectorEstado[25] += 1
 
                     else:
                         vectorEstado[3], vectorEstado[2] = self.calcularProxLlegadaFutbol(vectorEstado[1],
                                                                                           llegada_futbol)
 
                         vectorEstado[4] = vectorEstado[3] + prox_reloj
-                        objeto = ["futbol", "retirado", -1]
+                        objeto = ["futbol", "retirado", -1, prox_reloj]
                         vectorEstado.append(objeto)
                         vectorEstado[12] = "SI"
 
@@ -617,10 +622,11 @@ class MyWindow(QMainWindow):
 
                         vectorEstado[7] = vectorEstado[6] + prox_reloj
 
-                        objeto = ["handball", "en cola", vectorEstado[11]]
+                        objeto = ["handball", "en cola", vectorEstado[11], prox_reloj]
                         vectorEstado.append(objeto)
                         # Voy agregando los nombres al vector cola
                         self.cola.append(objeto[0])
+                        vectorEstado[26] += 1
 
                     else:
                         vectorEstado[6], vectorEstado[5] = self.calcularProxLlegadaHandball(vectorEstado[1],
@@ -628,7 +634,7 @@ class MyWindow(QMainWindow):
                                                                                             llegada_hand_b)
 
                         vectorEstado[7] = vectorEstado[6] + prox_reloj
-                        objeto = ["handball", "retirado", -1]
+                        objeto = ["handball", "retirado", -1, prox_reloj]
                         vectorEstado.append(objeto)
                         vectorEstado[12] = "SI"
 
@@ -641,11 +647,11 @@ class MyWindow(QMainWindow):
 
                         vectorEstado[10] = vectorEstado[9] + prox_reloj
 
-                        objeto = ["basketball", "en cola", vectorEstado[11]]
+                        objeto = ["basketball", "en cola", vectorEstado[11], prox_reloj]
                         vectorEstado.append(objeto)
                         # Voy agregando los nombres al vector cola
                         self.cola.append(objeto[0])
-
+                        vectorEstado[27] += 1
 
                     else:
                         vectorEstado[9], vectorEstado[8] = self.calcularProxLlegadaBasketball(vectorEstado[1],
@@ -653,7 +659,7 @@ class MyWindow(QMainWindow):
                                                                                               llegada_basket_b)
 
                         vectorEstado[10] = vectorEstado[9] + prox_reloj
-                        objeto = ["basketball", "retirado", -1]
+                        objeto = ["basketball", "retirado", -1, prox_reloj]
                         vectorEstado.append(objeto)
                         vectorEstado[12] = "SI"
 
@@ -668,11 +674,14 @@ class MyWindow(QMainWindow):
                         vectorEstado[15], vectorEstado[14] = self.calcularFinOcupacionFutbol(vectorEstado[1], ocupacion_futbol_a, ocupacion_futbol_b)
                         vectorEstado[16] = vectorEstado[15] + prox_reloj
                         vectorEstado[23] = vectorEstado[16] + limpieza
-
+                        vectorEstado[31] += self.limpieza
                         # Acá llamo a esta función ya que si llegó este evento de fin ocupación debo pasar el equipo
                         # que termino de ocupar a destruido y el que estaba en posición 1 a que esté en cancha
                         # y además actualizar las posiciones de los demás objetos en cola
                         self.actualizar_vectores(vectorEstado)
+
+                        tiempo_espera_futbol = vectorEstado[24]
+                        vectorEstado[28] += tiempo_espera_futbol
                         # borro en el vector cola el equipo en posición 0 ya que termino de ocupar la cancha
                         self.cola.pop(0)
                         # actualizo el contador cola porque uno que estaba en fila entro a la cancha
@@ -683,8 +692,11 @@ class MyWindow(QMainWindow):
                         vectorEstado[18], vectorEstado[17] = self.calcularFinOcupacionHandball(vectorEstado[1], ocupacion_hand_a, ocupacion_hand_b)
                         vectorEstado[19] = vectorEstado[18] + prox_reloj
                         vectorEstado[23] = vectorEstado[19] + limpieza
-
+                        vectorEstado[31] += self.limpieza
                         self.actualizar_vectores(vectorEstado)
+
+                        tiempo_espera_handball = vectorEstado[24]
+                        vectorEstado[29] += tiempo_espera_handball
                         self.cola.pop(0)
                         vectorEstado[11] = len(self.cola) - 1
                         print(vectorEstado)
@@ -693,8 +705,11 @@ class MyWindow(QMainWindow):
                         vectorEstado[21], vectorEstado[20] = self.calcularFinOcupacionHandball(vectorEstado[1], ocupacion_hand_a, ocupacion_hand_b)
                         vectorEstado[22] = vectorEstado[21] + prox_reloj
                         vectorEstado[23] = vectorEstado[22] + limpieza
-
+                        vectorEstado[31] += self.limpieza
                         self.actualizar_vectores(vectorEstado)
+
+                        tiempo_espera_basket = vectorEstado[24]
+                        vectorEstado[30] += tiempo_espera_basket
                         self.cola.pop(0)
                         vectorEstado[11] = len(self.cola) - 1
                         print(vectorEstado)
@@ -768,6 +783,13 @@ class MyWindow(QMainWindow):
                     vector_estado[indice_en_cola][1] = "en cancha"
                     vector_estado[indice_en_cola][2] = 0
 
+                    # calculo el tiempo de espera del objeto que va a entrar en cancha
+                    tiempo_entro_cola = vector_estado[indice_en_cola][3]
+                    tiempo_entro_jugar = vector_estado[1]
+                    tiempo_espera = tiempo_entro_jugar - tiempo_entro_cola
+
+                    # muestro en el vector estado el tiempo de espera que tuvo ese objeto
+                    vector_estado[24] = tiempo_espera
                 # Ajustar las posiciones de los equipos restantes en cola
                 for vector in vector_estado:
                     if isinstance(vector, list) and vector[1] == "en cola" and vector[2] > 0:
