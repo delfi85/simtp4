@@ -952,14 +952,14 @@ class MyWindow(QMainWindow):
         #Esta funcion calcula la proxima llegada de un equipo de handball
         rnd = random.random()
         rnd_redondeado = self.redondear_a_2_decimales(rnd)
-        rnd_unif = llegada_hand_a + rnd_redondeado * llegada_hand_b
+        rnd_unif = llegada_hand_a + rnd_redondeado * (llegada_hand_b - llegada_hand_a)
         return self.redondear_a_2_decimales(relojActual + rnd_unif), rnd_redondeado
     
     def calcularProxLlegadaBasketball(self, relojActual, llegada_basket_a, llegada_basket_b):
         #Esta funcion calcula la proxima llegada de un equipo de basketball
         rnd = random.random()
         rnd_redondeado = self.redondear_a_2_decimales(rnd)
-        rnd_unif = llegada_basket_a + rnd_redondeado * llegada_basket_b
+        rnd_unif = llegada_basket_a + rnd_redondeado * (llegada_basket_b - llegada_basket_a)
         return self.redondear_a_2_decimales(relojActual + rnd_unif), rnd_redondeado
     
     def calcularFinOcupacionFutbol(self, relojActual, ocupacion_futbol_a, ocupacion_futbol_b):
@@ -967,7 +967,7 @@ class MyWindow(QMainWindow):
         rnd_redondeado = self.redondear_a_2_decimales(rnd)
         ocupacion_futbol_a = ocupacion_futbol_a / 60
         ocupacion_futbol_b = ocupacion_futbol_b / 60
-        rnd_unif = ocupacion_futbol_a + rnd_redondeado * ocupacion_futbol_b
+        rnd_unif = ocupacion_futbol_a + rnd_redondeado * (ocupacion_futbol_b - ocupacion_futbol_a)
         return self.redondear_a_2_decimales(relojActual + rnd_unif), rnd_redondeado
     
     def calcularFinOcupacionHandball(self, relojActual, ocupacion_hand_a, ocupacion_hand_b):
@@ -975,7 +975,7 @@ class MyWindow(QMainWindow):
         rnd_redondeado = self.redondear_a_2_decimales(rnd)
         ocupacion_hand_a = ocupacion_hand_a / 60
         ocupacion_hand_b = ocupacion_hand_b / 60
-        rnd_unif = ocupacion_hand_a + rnd_redondeado * ocupacion_hand_b
+        rnd_unif = ocupacion_hand_a + rnd_redondeado * (ocupacion_hand_b - ocupacion_hand_a)
         return self.redondear_a_2_decimales(relojActual + rnd_unif), rnd_redondeado
     
     def calcularFinOcupacionBasketball(self, relojActual, ocupacion_basket_a, ocupacion_basket_b):
@@ -983,7 +983,7 @@ class MyWindow(QMainWindow):
         rnd_redondeado = self.redondear_a_2_decimales(rnd)
         ocupacion_basket_a = ocupacion_basket_a / 60
         ocupacion_basket_b = ocupacion_basket_b / 60
-        rnd_unif = ocupacion_basket_a + rnd * ocupacion_basket_b
+        rnd_unif = ocupacion_basket_a + rnd * (ocupacion_basket_b - ocupacion_basket_a)
         return self.redondear_a_2_decimales(relojActual + rnd_unif), rnd_redondeado
 
 
