@@ -32,6 +32,7 @@ class MyWindow(QMainWindow):
         self.cola = []
         self.cant_partidos = 0
         self.bandera_retiro = False
+        self.bandera_tiempo_ocupacion = False
         self.init_main_window()
 
         # Guarda los valores iniciales de los campos de entrada
@@ -280,6 +281,7 @@ class MyWindow(QMainWindow):
         self.cola = []
         self.bandera_retiro = False
         self.cant_partidos = 0
+        self.bandera_tiempo_ocupacion = False
 
     def cancel_action(self):
         self.close()
@@ -341,6 +343,10 @@ class MyWindow(QMainWindow):
             if isinstance(item, list):
                 # Incrementa el contador de objetos
                 object_count += 1
+
+                if len(item) > 3 and isinstance(item[3], float):
+                    item[3] = f"{item[3]:.2f}"
+
                 # Inserta el objeto completo en la tabla en la fila 'i' y la columna correspondiente
                 self.tableWidgetSecond.setItem(i, column_index, QTableWidgetItem(str(item)))
                 # Verifica si es necesario añadir una nueva columna para el objeto
@@ -465,31 +471,57 @@ class MyWindow(QMainWindow):
         fila_desde_text = self.fila_desde_input.text()
         self.inicial_fila_desde = fila_desde_text
 
-        # Validación de todos los campos para que todos sean completados
-        #if dias_text.strip() == '' or ventas_text.strip() == '' or costo_ventas_text.strip() == '' \
-        #       or costo_obrero_text.strip() == '' or filas_mostrar_text.strip() == '' or fila_desde_text.strip() == '':
-        #   QMessageBox.warning(self, 'Campos vacíos', 'Por favor, complete todos los campos.')
-        #   return
+        # Validar que todos los campos estén completados
+        if (not iteraciones_text or not limpieza_text or not llegada_futbol_text or not llegada_hand_a_text or
+                not llegada_hand_b_text or not llegada_basket_a_text or not llegada_basket_b_text or
+                not ocupacion_futbol_a_text or not ocupacion_futbol_b_text or not ocupacion_hand_a_text or
+                not ocupacion_hand_b_text or not ocupacion_basket_a_text or not ocupacion_basket_b_text or
+                not cant_grupos_text or not filas_mostrar_text or not fila_desde_text):
+            QMessageBox.warning(self, 'Campos incompletos', 'Por favor, complete todos los campos.')
+            return
 
-        iteraciones = int(iteraciones_text)
-        limpieza = float(limpieza_text)
-        llegada_futbol = float(llegada_futbol_text)
-        llegada_hand_a = float(llegada_hand_a_text)
-        llegada_hand_b = float(llegada_hand_b_text)
-        llegada_basket_a = float(llegada_basket_a_text)
-        llegada_basket_b = float(llegada_basket_b_text)
-        ocupacion_futbol_a = float(ocupacion_futbol_a_text)
-        ocupacion_futbol_b = float(ocupacion_futbol_b_text)
-        ocupacion_hand_a = float(ocupacion_hand_a_text)
-        ocupacion_hand_b = float(ocupacion_hand_b_text)
-        ocupacion_basket_a = float(ocupacion_basket_a_text)
-        ocupacion_basket_b = float(ocupacion_basket_b_text)
-        cant_grupos = int(cant_grupos_text)
-        filas_mostrar = int(filas_mostrar_text)
-        fila_desde = int(fila_desde_text)
+        # Convertir los textos a los tipos adecuados
+        try:
+            iteraciones = int(iteraciones_text)
+            limpieza = float(limpieza_text)
+            llegada_futbol = float(llegada_futbol_text)
+            llegada_hand_a = float(llegada_hand_a_text)
+            llegada_hand_b = float(llegada_hand_b_text)
+            llegada_basket_a = float(llegada_basket_a_text)
+            llegada_basket_b = float(llegada_basket_b_text)
+            ocupacion_futbol_a = float(ocupacion_futbol_a_text)
+            ocupacion_futbol_b = float(ocupacion_futbol_b_text)
+            ocupacion_hand_a = float(ocupacion_hand_a_text)
+            ocupacion_hand_b = float(ocupacion_hand_b_text)
+            ocupacion_basket_a = float(ocupacion_basket_a_text)
+            ocupacion_basket_b = float(ocupacion_basket_b_text)
+            cant_grupos = int(cant_grupos_text)
+            filas_mostrar = int(filas_mostrar_text)
+            fila_desde = int(fila_desde_text)
+        except ValueError:
+            QMessageBox.warning(self, 'Valor inválido',
+                                'Por favor, ingrese valores numéricos válidos en todos los campos.')
+            return
+
+        # Validaciones adicionales
+        if (iteraciones <= 0 or limpieza <= 0 or llegada_futbol <= 0 or llegada_hand_a <= 0 or llegada_hand_b <= 0 or
+                llegada_basket_a <= 0 or llegada_basket_b <= 0 or ocupacion_futbol_a < 0 or ocupacion_futbol_b < 0 or
+                ocupacion_hand_a < 0 or ocupacion_hand_b < 0 or ocupacion_basket_a < 0 or ocupacion_basket_b < 0 or
+                filas_mostrar < 0 or fila_desde < 0):
+            QMessageBox.warning(self, 'Valores no permitidos', 'Por favor, ingrese valores mayores a cero. ')
+            return
+
+        # Validación de iteraciones máximas
+        if iteraciones > 100000:
+            QMessageBox.warning(self, 'Iteraciones máximas excedidas',
+                                'El número de iteraciones no puede ser mayor a 100000.')
+            return
+
+        # Llamar a la función para inicializar la segunda página
         self.init_second_page2(iteraciones, limpieza, llegada_futbol, llegada_hand_a, llegada_hand_b, llegada_basket_a,
                                llegada_basket_b, ocupacion_futbol_a, ocupacion_futbol_b, ocupacion_hand_a,
-                               ocupacion_hand_b,ocupacion_basket_a, ocupacion_basket_b,cant_grupos, filas_mostrar, fila_desde)
+                               ocupacion_hand_b,
+                               ocupacion_basket_a, ocupacion_basket_b, cant_grupos, filas_mostrar, fila_desde)
 
     def init_second_page2(self, iteraciones, limpieza, llegada_futbol, llegada_hand_a, llegada_hand_b, llegada_basket_a,
                                llegada_basket_b, ocupacion_futbol_a, ocupacion_futbol_b, ocupacion_hand_a,
@@ -585,7 +617,7 @@ class MyWindow(QMainWindow):
                 # estado "en cancha", en ese caso sigue de largo y busca al que si esté en cola
                 self.verificar_prioridad_objeto(vectorEstado)
 
-            if i == 0:
+            if i == 0 or self.bandera_tiempo_ocupacion == True:
                 if (nombre_proxEvento == "Llegada futbol"):
                     # Aca iria la logica si llega un equipo de futbol
                     # Primero calculamos la proxima llegada de un equipo de futbol
@@ -600,7 +632,8 @@ class MyWindow(QMainWindow):
                     vectorEstado[15], vectorEstado[14] = self.calcularFinOcupacionFutbol(vectorEstado[1], ocupacion_futbol_a, ocupacion_futbol_b)
                     vectorEstado[16] = vectorEstado[15] + prox_reloj
                     vectorEstado[23] = vectorEstado[16] + limpieza
-
+                    vectorEstado[12] = "NO"
+                    self.bandera_tiempo_ocupacion = False
                     
                     objeto = ["futbol", "en cancha", vectorEstado[11], prox_reloj]
                     vectorEstado.append(objeto)
@@ -621,8 +654,9 @@ class MyWindow(QMainWindow):
                     vectorEstado[18], vectorEstado[17] = self.calcularFinOcupacionHandball(vectorEstado[1], ocupacion_hand_a, ocupacion_hand_b)
                     vectorEstado[19] = vectorEstado[18] + prox_reloj
                     vectorEstado[23] = vectorEstado[19] + limpieza
+                    vectorEstado[12] = "NO"
 
-                    
+                    self.bandera_tiempo_ocupacion = False
                     objeto = ["handball", "en cancha", vectorEstado[11], prox_reloj]
                     vectorEstado.append(objeto)
                     # Voy agregando los nombres al vector cola
@@ -643,8 +677,9 @@ class MyWindow(QMainWindow):
                     vectorEstado[21], vectorEstado[20] = self.calcularFinOcupacionHandball(vectorEstado[1], ocupacion_basket_a, ocupacion_basket_b)
                     vectorEstado[22] = vectorEstado[21] + prox_reloj
                     vectorEstado[23] = vectorEstado[22] + limpieza
+                    vectorEstado[12] = "NO"
 
-                    
+                    self.bandera_tiempo_ocupacion = False
                     objeto = ["basketball", "en cancha", vectorEstado[11], prox_reloj]
                     vectorEstado.append(objeto)
                     # Voy agregando los nombres al vector cola
@@ -666,6 +701,7 @@ class MyWindow(QMainWindow):
                         # Voy agregando los nombres al vector cola
                         self.cola.append(objeto[0])
                         vectorEstado[25] += 1
+                        vectorEstado[12] = "NO"
 
                     else:
                         vectorEstado[3], vectorEstado[2] = self.calcularProxLlegadaFutbol(vectorEstado[1],
@@ -689,6 +725,7 @@ class MyWindow(QMainWindow):
                         # Voy agregando los nombres al vector cola
                         self.cola.append(objeto[0])
                         vectorEstado[26] += 1
+                        vectorEstado[12] = "NO"
 
                     else:
                         vectorEstado[6], vectorEstado[5] = self.calcularProxLlegadaHandball(vectorEstado[1],
@@ -699,6 +736,7 @@ class MyWindow(QMainWindow):
                         objeto = ["handball", "retirado", -1, prox_reloj]
                         vectorEstado.append(objeto)
                         vectorEstado[12] = "SI"
+
 
 
                     print(vectorEstado)
@@ -714,6 +752,7 @@ class MyWindow(QMainWindow):
                         # Voy agregando los nombres al vector cola
                         self.cola.append(objeto[0])
                         vectorEstado[27] += 1
+                        vectorEstado[12] = "NO"
 
                     else:
                         vectorEstado[9], vectorEstado[8] = self.calcularProxLlegadaBasketball(vectorEstado[1],
@@ -729,14 +768,26 @@ class MyWindow(QMainWindow):
                     print(vectorEstado)
 
                 elif (nombre_proxEvento == "Fin Ocupacion futbol") or (nombre_proxEvento == "Fin Ocupacion handball") or (nombre_proxEvento == "Fin Ocupacion basketball"):
+
+                    if len(self.cola) == 1:
+                        self.actualizar_vectores(vectorEstado)
+                        # Esto se ejecuta SOLAMENTE cuando resulta el caso de que entra un equipo en cancha y sale antes
+                        # de cualquier llegada por lo tanto solo actualizo vector
+                        vectorEstado[12] = "NO"
+                        vectorEstado[13] = "Libre"
+                        self.cant_partidos += 1
+                        self.cola.pop(0)
+                        self.bandera_tiempo_ocupacion = True
+
                     # Acá lo que hago es verificar qué equipo está en posición 1 en la cola para poder calcular
                     # el tiempo de ocupación de ese equipo en la misma fila que apareció el evento Fin Ocupación
                     # del equipo que estaba en posición 0
-                    if self.cola[1] == "futbol":
+                    elif self.cola[1] == "futbol":
                         vectorEstado[15], vectorEstado[14] = self.calcularFinOcupacionFutbol(vectorEstado[1], ocupacion_futbol_a, ocupacion_futbol_b)
                         vectorEstado[16] = vectorEstado[15] + prox_reloj
                         vectorEstado[23] = vectorEstado[16] + limpieza
                         vectorEstado[31] += limpieza
+                        vectorEstado[12] = "NO"
                         # Acá llamo a esta función ya que si llegó este evento de fin ocupación debo pasar el equipo
                         # que termino de ocupar a destruido y el que estaba en posición 1 a que esté en cancha
                         # y además actualizar las posiciones de los demás objetos en cola
@@ -758,6 +809,7 @@ class MyWindow(QMainWindow):
                         vectorEstado[19] = vectorEstado[18] + prox_reloj
                         vectorEstado[23] = vectorEstado[19] + limpieza
                         vectorEstado[31] += limpieza
+                        vectorEstado[12] = "NO"
                         self.actualizar_vectores(vectorEstado)
 
                         tiempo_espera_handball = vectorEstado[24]
@@ -772,6 +824,7 @@ class MyWindow(QMainWindow):
                         vectorEstado[22] = vectorEstado[21] + prox_reloj
                         vectorEstado[23] = vectorEstado[22] + limpieza
                         vectorEstado[31] += limpieza
+                        vectorEstado[12] = "NO"
                         self.actualizar_vectores(vectorEstado)
 
                         tiempo_espera_basket = vectorEstado[24]
@@ -780,6 +833,7 @@ class MyWindow(QMainWindow):
                         vectorEstado[11] = len(self.cola) - 1
                         self.cant_partidos += 1
                         print(vectorEstado)
+
 
             # Verificar si se alcanzó la fila desde
             if prox_reloj >= fila_desde and not se_alcanzo_fila_desde:
@@ -799,7 +853,8 @@ class MyWindow(QMainWindow):
 
         # Todo este if lo unico que hace es no devolver como primer evento el fin de ocupacion, cuando vale 0 en la primer "fila" de la tabla
         # en el evento de "Inicio"
-        if vectorEstado[23] > 0:
+        if vectorEstado[23] > 0 and self.bandera_tiempo_ocupacion == False:
+
             # Encontrar el índice del valor mínimo en proximoRelojLlegada
             indice_minimo = proximoRelojLlegada.index(min(proximoRelojLlegada))
 
@@ -813,8 +868,17 @@ class MyWindow(QMainWindow):
 
             nombre_reloj_minimo = nombres_reloj[indice_minimo]
 
+        elif vectorEstado[23] > 0 and self.bandera_tiempo_ocupacion == True:
+            # Encontrar el índice del valor mínimo en proximoRelojLlegada
+            indice_minimo = proximoRelojLlegada.index(
+                min(proximoRelojLlegada[0], proximoRelojLlegada[1], proximoRelojLlegada[2]))
+
+            # Asignar nombres de reloj según el índice
+            nombres_reloj = ["Llegada futbol", "Llegada handball", "Llegada basketball"]
+            nombre_reloj_minimo = nombres_reloj[indice_minimo]
+
             # Devolver el número de reloj y el nombre del próximo evento
-        else:
+        elif vectorEstado[23] == 0 and self.bandera_tiempo_ocupacion == False:
             # Encontrar el índice del valor mínimo en proximoRelojLlegada
             indice_minimo = proximoRelojLlegada.index(min(proximoRelojLlegada[0], proximoRelojLlegada[1], proximoRelojLlegada[2]))
 
@@ -857,6 +921,8 @@ class MyWindow(QMainWindow):
                     # calculo el tiempo de espera del objeto que va a entrar en cancha
                     tiempo_entro_cola = vector_estado[indice_en_cola][3]
                     tiempo_entro_jugar = vector_estado[1]
+                    tiempo_entro_jugar = float(tiempo_entro_jugar)
+                    tiempo_entro_cola = float(tiempo_entro_cola)
                     tiempo_espera = tiempo_entro_jugar - tiempo_entro_cola
 
                     # muestro en el vector estado el tiempo de espera que tuvo ese objeto
@@ -917,9 +983,18 @@ class MyWindow(QMainWindow):
     def fila_calculo(self, vectorEstado):
         vector_final = ["PROMEDIO DE ESPERA", 0, 0, 0, "TASA DE LIMPIEZA", 0]
 
-        vector_final[1] = vectorEstado[28]/vectorEstado[25]
-        vector_final[2] = vectorEstado[29]/vectorEstado[26]
-        vector_final[3] = vectorEstado[30]/vectorEstado[27]
+        if vectorEstado[25] != 0:
+            vector_final[1] = vectorEstado[28]/vectorEstado[25]
+        else:
+            vector_final[1] = 0
+        if vectorEstado[26] != 0:
+            vector_final[2] = vectorEstado[29]/vectorEstado[26]
+        else:
+            vector_final[2] = 0
+        if vectorEstado[27] != 0:
+            vector_final[3] = vectorEstado[30]/vectorEstado[27]
+        else:
+            vector_final[3] = 0
         valor = (vectorEstado[31] / self.cant_partidos) * 100
         print(self.cant_partidos)
         vector_final[5] = f"{valor:.2f}%"
