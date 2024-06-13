@@ -332,7 +332,7 @@ class MyWindow(QMainWindow):
         # Inicializa el índice de la columna a 0
         j = 0
         # Establece el índice de la columna inicial para los objetos
-        column_index = 32
+        column_index = 34
 
         # Contador para el número de objetos
         object_count = 0
@@ -343,9 +343,6 @@ class MyWindow(QMainWindow):
             if isinstance(item, list):
                 # Incrementa el contador de objetos
                 object_count += 1
-
-                if len(item) > 3 and isinstance(item[3], float):
-                    item[3] = f"{item[3]:.2f}"
 
                 # Inserta el objeto completo en la tabla en la fila 'i' y la columna correspondiente
                 self.tableWidgetSecond.setItem(i, column_index, QTableWidgetItem(str(item)))
@@ -527,7 +524,7 @@ class MyWindow(QMainWindow):
                                llegada_basket_b, ocupacion_futbol_a, ocupacion_futbol_b, ocupacion_hand_a,
                                ocupacion_hand_b,ocupacion_basket_a, ocupacion_basket_b,cant_grupos, filas_mostrar, fila_desde):
         self.tableWidgetSecond = QTableWidget(self)
-        self.tableWidgetSecond.setColumnCount(32)
+        self.tableWidgetSecond.setColumnCount(34)
         self.tableWidgetSecond.setHorizontalHeaderLabels(
             ["Evento", "Reloj", "Fútbol RND", "Fútbol Tiempo entre Llegadas", "Fútbol Próxima Llegada", "Hand RND",
              "Hand Tiempo entre Llegadas", "Hand Próxima Llegada", "Basket RND",
@@ -536,7 +533,7 @@ class MyWindow(QMainWindow):
              "Hand Fin Ocupación", "Basket RND", "Basket Tiempo de Ocupación",
              "Basket Fin Ocupación", "Tiempo de Limpieza", "Tiempo de Espera", "Cantidad Grupos Fútbol", "Cantidad Grupos Hand",
              "Cantidad Grupos Basket", "Fútbol Tiempo de espera acumulado", "Hand Tiempo de espera acumulado",
-             "Basket Tiempo de espera acumulado", "Tiempo de limpieza acumulado"])
+             "Basket Tiempo de espera acumulado", "Tiempo de limpieza acumulado", "Cantidad Grupos Retirados", "Cantidad de Partidos Jugados"])
         #Ver dónde o cómo podría poner la tasa de limpieza y el promedio a calcular
 
         self.iniciar_simulacion(iteraciones, limpieza, llegada_futbol, llegada_hand_a, llegada_hand_b, llegada_basket_a,
@@ -568,6 +565,14 @@ class MyWindow(QMainWindow):
     def iniciar_simulacion(self, iteraciones, limpieza, llegada_futbol, llegada_hand_a, llegada_hand_b, llegada_basket_a,
                                llegada_basket_b, ocupacion_futbol_a, ocupacion_futbol_b, ocupacion_hand_a,
                                ocupacion_hand_b,ocupacion_basket_a, ocupacion_basket_b,cant_grupos, filas_mostrar, fila_desde):
+
+        ocupacion_futbol_a = ocupacion_futbol_a / 60
+        ocupacion_futbol_b = ocupacion_futbol_b / 60
+        ocupacion_hand_a = ocupacion_hand_a / 60
+        ocupacion_hand_b = ocupacion_hand_b / 60
+        ocupacion_basket_a = ocupacion_basket_a / 60
+        ocupacion_basket_b = ocupacion_basket_b / 60
+
         # Defini este vector estado con el excel, lo unico que en vez de hacer tantas columnas para calcular la llegada de los equipos hice una por equipo, al igual que la ocupacion
         # Para la ocupacion, solo muestro cuando se va a desocupar (en tiempo) y que equipo la esta ocupando, para ahorrar columnas, porque solo un equipo ocupa la cancha a la vez
         tiempo_llegada_futbol, rnd_futbol_llegada = self.calcularProxLlegadaFutbol(0, llegada_futbol)
@@ -575,7 +580,7 @@ class MyWindow(QMainWindow):
         tiempo_llegada_basket, rnd_basket_llegada = self.calcularProxLlegadaBasketball(0, llegada_basket_a, llegada_basket_b)
                         #EVENTO  #RELOJ #RND #TIEMPO ENTRE LLEGADAS #LLEGADA
         vectorEstado = ["Inicio", 0, rnd_futbol_llegada, 0, tiempo_llegada_futbol, rnd_hand_llegada, 0, tiempo_llegada_hand,
-                        rnd_basket_llegada, 0, tiempo_llegada_basket, 0, "", "Libre", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                        rnd_basket_llegada, 0, tiempo_llegada_basket, 0, "", "Libre", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         print(vectorEstado)
 
         # Si fila_desde es 0, incluir el estado inicial en la tabla
@@ -706,11 +711,9 @@ class MyWindow(QMainWindow):
                     else:
                         vectorEstado[3], vectorEstado[2] = self.calcularProxLlegadaFutbol(vectorEstado[1],
                                                                                           llegada_futbol)
-
                         vectorEstado[4] = vectorEstado[3] + prox_reloj
-                        objeto = ["futbol", "retirado", -1, prox_reloj]
-                        vectorEstado.append(objeto)
                         vectorEstado[12] = "SI"
+                        vectorEstado[32] += 1
 
 
                     print(vectorEstado)
@@ -731,13 +734,9 @@ class MyWindow(QMainWindow):
                         vectorEstado[6], vectorEstado[5] = self.calcularProxLlegadaHandball(vectorEstado[1],
                                                                                             llegada_hand_a,
                                                                                             llegada_hand_b)
-
                         vectorEstado[7] = vectorEstado[6] + prox_reloj
-                        objeto = ["handball", "retirado", -1, prox_reloj]
-                        vectorEstado.append(objeto)
                         vectorEstado[12] = "SI"
-
-
+                        vectorEstado[32] += 1
 
                     print(vectorEstado)
 
@@ -758,11 +757,9 @@ class MyWindow(QMainWindow):
                         vectorEstado[9], vectorEstado[8] = self.calcularProxLlegadaBasketball(vectorEstado[1],
                                                                                               llegada_basket_a,
                                                                                               llegada_basket_b)
-
                         vectorEstado[10] = vectorEstado[9] + prox_reloj
-                        objeto = ["basketball", "retirado", -1, prox_reloj]
-                        vectorEstado.append(objeto)
                         vectorEstado[12] = "SI"
+                        vectorEstado[32] += 1
 
 
                     print(vectorEstado)
@@ -776,6 +773,7 @@ class MyWindow(QMainWindow):
                         vectorEstado[12] = "NO"
                         vectorEstado[13] = "Libre"
                         self.cant_partidos += 1
+                        vectorEstado[33] = self.cant_partidos
                         self.cola.pop(0)
                         self.bandera_tiempo_ocupacion = True
 
@@ -802,6 +800,7 @@ class MyWindow(QMainWindow):
                         vectorEstado[11] = len(self.cola) - 1
 
                         self.cant_partidos += 1
+                        vectorEstado[33] = self.cant_partidos
                         print(vectorEstado)
 
                     elif self.cola[1] == "handball":
@@ -817,6 +816,7 @@ class MyWindow(QMainWindow):
                         self.cola.pop(0)
                         vectorEstado[11] = len(self.cola) - 1
                         self.cant_partidos += 1
+                        vectorEstado[33] = self.cant_partidos
                         print(vectorEstado)
 
                     elif self.cola[1] == "basketball":
@@ -832,6 +832,7 @@ class MyWindow(QMainWindow):
                         self.cola.pop(0)
                         vectorEstado[11] = len(self.cola) - 1
                         self.cant_partidos += 1
+                        vectorEstado[33] = self.cant_partidos
                         print(vectorEstado)
 
 
@@ -1021,45 +1022,39 @@ class MyWindow(QMainWindow):
         rnd_exponencial = rnd_redondeado
 
         rnd_exp = self.redondear_a_2_decimales(-(llegada_futbol) * math.log(1 - rnd_exponencial))
-        return relojActual + rnd_exp, rnd_exponencial
+        return rnd_exp, rnd_exponencial
     
     def calcularProxLlegadaHandball(self, relojActual, llegada_hand_a, llegada_hand_b):
         #Esta funcion calcula la proxima llegada de un equipo de handball
         rnd = random.random()
         rnd_redondeado = self.redondear_a_2_decimales(rnd)
         rnd_unif = llegada_hand_a + rnd_redondeado * (llegada_hand_b - llegada_hand_a)
-        return self.redondear_a_2_decimales(relojActual + rnd_unif), rnd_redondeado
+        return self.redondear_a_2_decimales(rnd_unif), rnd_redondeado
     
     def calcularProxLlegadaBasketball(self, relojActual, llegada_basket_a, llegada_basket_b):
         #Esta funcion calcula la proxima llegada de un equipo de basketball
         rnd = random.random()
         rnd_redondeado = self.redondear_a_2_decimales(rnd)
         rnd_unif = llegada_basket_a + rnd_redondeado * (llegada_basket_b - llegada_basket_a)
-        return self.redondear_a_2_decimales(relojActual + rnd_unif), rnd_redondeado
+        return self.redondear_a_2_decimales(rnd_unif), rnd_redondeado
     
     def calcularFinOcupacionFutbol(self, relojActual, ocupacion_futbol_a, ocupacion_futbol_b):
         rnd = random.random()
         rnd_redondeado = self.redondear_a_2_decimales(rnd)
-        ocupacion_futbol_a = ocupacion_futbol_a / 60
-        ocupacion_futbol_b = ocupacion_futbol_b / 60
         rnd_unif = ocupacion_futbol_a + rnd_redondeado * (ocupacion_futbol_b - ocupacion_futbol_a)
-        return self.redondear_a_2_decimales(relojActual + rnd_unif), rnd_redondeado
+        return self.redondear_a_2_decimales(rnd_unif), rnd_redondeado
     
     def calcularFinOcupacionHandball(self, relojActual, ocupacion_hand_a, ocupacion_hand_b):
         rnd = random.random()
         rnd_redondeado = self.redondear_a_2_decimales(rnd)
-        ocupacion_hand_a = ocupacion_hand_a / 60
-        ocupacion_hand_b = ocupacion_hand_b / 60
         rnd_unif = ocupacion_hand_a + rnd_redondeado * (ocupacion_hand_b - ocupacion_hand_a)
-        return self.redondear_a_2_decimales(relojActual + rnd_unif), rnd_redondeado
+        return self.redondear_a_2_decimales(rnd_unif), rnd_redondeado
     
     def calcularFinOcupacionBasketball(self, relojActual, ocupacion_basket_a, ocupacion_basket_b):
         rnd = random.random()
         rnd_redondeado = self.redondear_a_2_decimales(rnd)
-        ocupacion_basket_a = ocupacion_basket_a / 60
-        ocupacion_basket_b = ocupacion_basket_b / 60
         rnd_unif = ocupacion_basket_a + rnd * (ocupacion_basket_b - ocupacion_basket_a)
-        return self.redondear_a_2_decimales(relojActual + rnd_unif), rnd_redondeado
+        return self.redondear_a_2_decimales(rnd_unif), rnd_redondeado
 
 
 if __name__ == "__main__":
