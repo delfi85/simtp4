@@ -657,10 +657,6 @@ class MyWindow(QMainWindow):
             if i > filas_mostrar:
                 vectorEstado = vectorEstado[:34]
 
-            print(self.cola)
-            print(self.tiempo_espera)
-            print("--------------------------------------------------------------------------------------------------")
-
             # Verifico que el vector cola sea mayor a 2 ya que no puedo ejecutar la función porque es solo
             # para la prioridad en el caso de que basketball se encuentre en la posición 1 del vector
             if len(self.cola) > 2:
@@ -668,8 +664,6 @@ class MyWindow(QMainWindow):
                 # cola = ["futbol", "basketball", "handball"]
                 # me va a devolver: cola = ["futbol", "handball", "basketball"]
                 self.verificar_prioridad_cola()
-                print(self.cola)
-                print(self.tiempo_espera)
 
             if i == 0 or self.bandera_tiempo_ocupacion == True:
                 if (nombre_proxEvento == "Llegada futbol"):
@@ -1026,6 +1020,18 @@ class MyWindow(QMainWindow):
                                 vector[2] -= 1
                             elif vector not in equipos_basketball:
                                 vector[2] -= 1
+
+                    # Reajustar las posiciones de los equipos de basketball consecutivos
+                    if len(equipos_basketball) > 1 and equipos_basketball[0][2] == 1:
+                        for i in range(1, len(equipos_basketball)):
+                            equipos_basketball[i][2] = equipos_basketball[i - 1][2] + 1
+
+
+                        # Aplicar los cambios de equipos_basketball a vector_estado
+                        for vector in vector_estado:
+                            for equipo in equipos_basketball:
+                                if vector == equipo:
+                                    vector[2] = equipo[2]
 
                 else:
                     for vector in vector_estado:
