@@ -6,6 +6,7 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QPushButton, QVBoxLayout, QLabel, \
     QLineEdit, QHBoxLayout, QWidget, QMessageBox, QHeaderView, QLayout, QSizePolicy, QSpacerItem
 from PyQt5.QtCore import Qt
+from runge_kutta import RungeKuttaWindow
 
 
 class MyWindow(QMainWindow):
@@ -29,6 +30,11 @@ class MyWindow(QMainWindow):
         self.inicial_cant_grupos = "5"
         self.inicial_filas_mostrar = "100"
         self.inicial_fila_desde = "0"
+        self.inicial_valor_t = "3"
+        self.inicial_valor_m = "0.05"
+        self.inicial_uniforme_a = "1"
+        self.inicial_uniforme_b = "3"
+        self.inicial_h = "0.1"
         # Declaro la variable cola acá para poder utilizarla en las funciones que quiera
         self.cola = []
         self.cant_partidos = 0
@@ -39,6 +45,7 @@ class MyWindow(QMainWindow):
         self.tiempo_espera = []
         self.obj_en_sim = []
         self.no_borrar = False
+        self.window = RungeKuttaWindow()
         self.init_main_window()
 
         # Guarda los valores iniciales de los campos de entrada
@@ -56,10 +63,25 @@ class MyWindow(QMainWindow):
             'ocupacion_basket_b': '',
             'cant_grupos': '',
             'filas_mostrar': '',
-            'fila_desde': ''
+            'fila_desde': '',
+            'valor_t': '',
+            'valor_m': '',
+            'uniforme_a': '',
+            'uniforme_b': '',
+            'h': ''
         }
 
     def init_main_window(self):
+
+        # Configurar fuentes
+        font_title = QFont()
+        font_title.setPointSize(14)
+        font_title.setUnderline(True)  # Subrayado para los títulos
+
+        # Sección SIMULACIÓN
+        label_simulacion = QLabel("SIMULACIÓN")
+        label_simulacion.setFont(font_title)
+
         # Campos adicionales
         self.iteraciones, self.iteraciones_input, self.iteraciones_label = self.create_input_field(
             "Número de iteraciones: ")
@@ -94,6 +116,13 @@ class MyWindow(QMainWindow):
         self.fila_desde, self.fila_desde_input, self.fila_desde_label = self.create_input_field(
             "Mostrar desde la hora: ")
 
+        # Campos de entrada para RUNGE KUTTA
+        self.valor_t, self.valor_t_input, self.valor_t_label = self.create_input_field("Valor de t: ")
+        self.valor_m, self.valor_m_input, self.valor_m_label = self.create_input_field("Valor de M: ")
+        self.uniforme_a, self.uniforme_a_input, self.uniforme_a_label = self.create_input_field("Uniforme A: ")
+        self.uniforme_b, self.uniforme_b_input, self.uniforme_b_label = self.create_input_field("Uniforme B: ")
+        self.h, self.h_input, self.h_label = self.create_input_field("h: ")
+
         # Ajustar el tamaño de la letra para los campos de entrada
         font = QFont()
         font.setPointSize(11)  # Tamaño de la letra para los campos de entrada
@@ -113,6 +142,11 @@ class MyWindow(QMainWindow):
         self.cant_grupos_label.setFont(font)
         self.filas_mostrar_label.setFont(font)
         self.fila_desde_label.setFont(font)
+        self.valor_t_label.setFont(font)
+        self.valor_m_label.setFont(font)
+        self.uniforme_a_label.setFont(font)
+        self.uniforme_b_label.setFont(font)
+        self.h_label.setFont(font)
 
         self.iteraciones_input.setFont(font)
         self.limpieza_input.setFont(font)
@@ -130,6 +164,11 @@ class MyWindow(QMainWindow):
         self.cant_grupos_input.setFont(font)
         self.filas_mostrar_input.setFont(font)
         self.fila_desde_input.setFont(font)
+        self.valor_t_input.setFont(font)
+        self.valor_m_input.setFont(font)
+        self.uniforme_a_input.setFont(font)
+        self.uniforme_b_input.setFont(font)
+        self.h_input.setFont(font)
 
         # Establecer el texto de los campos de entrada con los valores guardados
         self.iteraciones_input.setText(str(self.inicial_iteraciones))
@@ -148,6 +187,13 @@ class MyWindow(QMainWindow):
         self.cant_grupos_input.setText(str(self.inicial_cant_grupos))
         self.filas_mostrar_input.setText(str(self.inicial_filas_mostrar))
         self.fila_desde_input.setText(str(self.inicial_fila_desde))
+        self.fila_desde_input.setText(str(self.inicial_fila_desde))
+        self.valor_t_input.setText(str(self.inicial_valor_t))
+        self.valor_m_input.setText(str(self.inicial_valor_m))
+        self.uniforme_a_input.setText(str(self.inicial_uniforme_a))
+        self.uniforme_b_input.setText(str(self.inicial_uniforme_b))
+        self.h_input.setText(str(self.inicial_h))
+
 
         # Botón para guardar los valores y mostrar la segunda página
         self.pushButton = QPushButton("Simular", self)
@@ -176,6 +222,11 @@ class MyWindow(QMainWindow):
         self.cant_grupos_input.returnPressed.connect(self.simular_action)
         self.filas_mostrar_input.returnPressed.connect(self.simular_action)
         self.fila_desde_input.returnPressed.connect(self.simular_action)
+        self.valor_t_input.returnPressed.connect(self.simular_action)
+        self.valor_m_input.returnPressed.connect(self.simular_action)
+        self.uniforme_a_input.returnPressed.connect(self.simular_action)
+        self.uniforme_b_input.returnPressed.connect(self.simular_action)
+        self.h_input.returnPressed.connect(self.simular_action)
 
         self.pushButton.setFont(font)
         self.cancelButton.setFont(font)
@@ -184,8 +235,10 @@ class MyWindow(QMainWindow):
 
         layout.setSizeConstraint(QLayout.SetMinAndMaxSize)
 
+        layout.addWidget(label_simulacion)
+
         # Agregar espaciador vertical para empujar los campos hacia arriba
-        layout.addSpacing(100)
+        layout.addSpacing(30)
 
         # Agregar los diseños horizontales al diseño vertical
         row_layout_1 = QHBoxLayout()
@@ -197,7 +250,7 @@ class MyWindow(QMainWindow):
         row_layout_1.addWidget(self.llegada_futbol_input)
         layout.addLayout(row_layout_1)
 
-        layout.addSpacing(50)
+        layout.addSpacing(30)
 
         row_layout_2 = QHBoxLayout()
         row_layout_2.addWidget(self.llegada_hand_a_label)
@@ -206,7 +259,7 @@ class MyWindow(QMainWindow):
         row_layout_2.addWidget(self.llegada_hand_b_input)
         layout.addLayout(row_layout_2)
 
-        layout.addSpacing(50)
+        layout.addSpacing(30)
 
         row_layout_3 = QHBoxLayout()
         row_layout_3.addWidget(self.llegada_basket_a_label)
@@ -215,7 +268,7 @@ class MyWindow(QMainWindow):
         row_layout_3.addWidget(self.llegada_basket_b_input)
         layout.addLayout(row_layout_3)
 
-        layout.addSpacing(50)
+        layout.addSpacing(30)
 
         row_layout_4 = QHBoxLayout()
         row_layout_4.addWidget(self.ocupacion_futbol_a_label)
@@ -224,7 +277,7 @@ class MyWindow(QMainWindow):
         row_layout_4.addWidget(self.ocupacion_futbol_b_input)
         layout.addLayout(row_layout_4)
 
-        layout.addSpacing(50)
+        layout.addSpacing(30)
 
         row_layout_5 = QHBoxLayout()
         row_layout_5.addWidget(self.ocupacion_hand_a_label)
@@ -233,7 +286,7 @@ class MyWindow(QMainWindow):
         row_layout_5.addWidget(self.ocupacion_hand_b_input)
         layout.addLayout(row_layout_5)
 
-        layout.addSpacing(50)
+        layout.addSpacing(30)
 
         row_layout_6 = QHBoxLayout()
         row_layout_6.addWidget(self.ocupacion_basket_a_label)
@@ -242,21 +295,39 @@ class MyWindow(QMainWindow):
         row_layout_6.addWidget(self.ocupacion_basket_b_input)
         layout.addLayout(row_layout_6)
 
-        layout.addSpacing(50)
+        layout.addSpacing(30)
 
         row_layout_7 = QHBoxLayout()
         row_layout_7.addWidget(self.cant_grupos_label)
         row_layout_7.addWidget(self.cant_grupos_input)
+        row_layout_7.addWidget(self.filas_mostrar_label)
+        row_layout_7.addWidget(self.filas_mostrar_input)
+        row_layout_7.addWidget(self.fila_desde_label)
+        row_layout_7.addWidget(self.fila_desde_input)
         layout.addLayout(row_layout_7)
 
-        layout.addSpacing(50)
+        layout.addSpacing(30)
+
+        # Sección RUNGE KUTTA
+        label_runge_kutta = QLabel("RUNGE KUTTA")
+        label_runge_kutta.setFont(font_title)
+        layout.addWidget(label_runge_kutta)
 
         row_layout_8 = QHBoxLayout()
-        row_layout_8.addWidget(self.filas_mostrar_label)
-        row_layout_8.addWidget(self.filas_mostrar_input)
-        row_layout_8.addWidget(self.fila_desde_label)
-        row_layout_8.addWidget(self.fila_desde_input)
+        row_layout_8.addWidget(self.valor_t_label)
+        row_layout_8.addWidget(self.valor_t_input)
+        row_layout_8.addWidget(self.valor_m_label)
+        row_layout_8.addWidget(self.valor_m_input)
         layout.addLayout(row_layout_8)
+
+        row_layout_9 = QHBoxLayout()
+        row_layout_9.addWidget(self.uniforme_a_label)
+        row_layout_9.addWidget(self.uniforme_a_input)
+        row_layout_9.addWidget(self.uniforme_b_label)
+        row_layout_9.addWidget(self.uniforme_b_input)
+        row_layout_9.addWidget(self.h_label)
+        row_layout_9.addWidget(self.h_input)
+        layout.addLayout(row_layout_9)
 
         # Agregar el botón al diseño vertical
         layout.addSpacing(100)
@@ -286,6 +357,11 @@ class MyWindow(QMainWindow):
         self.cant_grupos = 0
         self.filas_mostrar = 0
         self.fila_desde = 0
+        self.valor_t = 0
+        self.valor_m = 0
+        self.uniforme_a = 0
+        self.uniforme_b = 0
+        self.h = 0
         self.cola = []
         self.bandera_retiro = False
         self.cant_partidos = 0
@@ -345,14 +421,14 @@ class MyWindow(QMainWindow):
         # Inicializa el índice de la columna a 0
         j = 0
         # Establece el índice de la columna inicial para los objetos
-        column_index = 34
+        column_index = 37
 
         # Contador para el número de objetos
         object_count = 0
 
         # Índices de las columnas de interés (contando desde 0)
         columnas_interes = [2, 3, 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-                            29, 30, 31, 32, 33]
+                            29, 30, 31, 32, 33, 34, 35, 36, 37]
 
         # Lista para guardar los valores de las columnas de interés de la primera fila
         if i == 0:
@@ -390,6 +466,16 @@ class MyWindow(QMainWindow):
                     item_widget = QTableWidgetItem(str(item))
                     # Centra el texto en la columna
                     item_widget.setTextAlignment(Qt.AlignCenter)
+
+                # Para las columnas 23, 24 y 25, aplica la lógica especial
+                if i > 0 and idx in [23, 24, 25]:
+                    if self.primeros_valores[23] == fila[23]:
+                        item_widget = QTableWidgetItem("")
+                    else:
+                        if isinstance(item, float):
+                            item = f"{item:.2f}"
+                        item_widget = QTableWidgetItem(str(item))
+                        item_widget.setTextAlignment(Qt.AlignCenter)
 
                 # Inserta el elemento en la tabla
                 self.tableWidgetSecond.setItem(i, j, item_widget)
@@ -500,12 +586,28 @@ class MyWindow(QMainWindow):
         fila_desde_text = self.fila_desde_input.text()
         self.inicial_fila_desde = fila_desde_text
 
+        valor_t_text = self.valor_t_input.text()
+        self.inicial_valor_t = valor_t_text
+
+        valor_m_text = self.valor_m_input.text()
+        self.inicial_valor_m = valor_m_text
+
+        uniforme_a_text = self.uniforme_a_input.text()
+        self.inicial_uniforme_a = uniforme_a_text
+
+        uniforme_b_text = self.uniforme_b_input.text()
+        self.inicial_uniforme_b = uniforme_b_text
+
+        h_text = self.h_input.text()
+        self.inicial_h = h_text
+
         # Validar que todos los campos estén completados
         if (not iteraciones_text or not limpieza_text or not llegada_futbol_text or not llegada_hand_a_text or
                 not llegada_hand_b_text or not llegada_basket_a_text or not llegada_basket_b_text or
                 not ocupacion_futbol_a_text or not ocupacion_futbol_b_text or not ocupacion_hand_a_text or
                 not ocupacion_hand_b_text or not ocupacion_basket_a_text or not ocupacion_basket_b_text or
-                not cant_grupos_text or not filas_mostrar_text or not fila_desde_text):
+                not cant_grupos_text or not filas_mostrar_text or not fila_desde_text or not valor_t_text or not valor_m_text
+        or not uniforme_a_text or not uniforme_b_text or not h_text):
             QMessageBox.warning(self, 'Campos incompletos', 'Por favor, complete todos los campos.')
             return
 
@@ -527,6 +629,12 @@ class MyWindow(QMainWindow):
             cant_grupos = int(cant_grupos_text)
             filas_mostrar = int(filas_mostrar_text)
             fila_desde = int(fila_desde_text)
+            valor_t = float(valor_t_text)
+            valor_m = float(valor_m_text)
+            uniforme_a = float(uniforme_a_text)
+            uniforme_b = float(uniforme_b_text)
+            h = float(h_text)
+
         except ValueError:
             QMessageBox.warning(self, 'Valor inválido',
                                 'Por favor, ingrese valores numéricos válidos en todos los campos.')
@@ -536,7 +644,8 @@ class MyWindow(QMainWindow):
         if (iteraciones <= 0 or limpieza <= 0 or llegada_futbol <= 0 or llegada_hand_a <= 0 or llegada_hand_b <= 0 or
                 llegada_basket_a <= 0 or llegada_basket_b <= 0 or ocupacion_futbol_a < 0 or ocupacion_futbol_b < 0 or
                 ocupacion_hand_a < 0 or ocupacion_hand_b < 0 or ocupacion_basket_a < 0 or ocupacion_basket_b < 0 or
-                filas_mostrar < 0 or fila_desde < 0):
+                filas_mostrar < 0 or fila_desde < 0 or valor_t < 0 or valor_m < 0 or uniforme_a < 0 or uniforme_b < 0
+        or h < 0):
             QMessageBox.warning(self, 'Valores no permitidos', 'Por favor, ingrese valores mayores a cero. ')
             return
 
@@ -550,50 +659,64 @@ class MyWindow(QMainWindow):
         self.init_second_page2(iteraciones, limpieza, llegada_futbol, llegada_hand_a, llegada_hand_b, llegada_basket_a,
                                llegada_basket_b, ocupacion_futbol_a, ocupacion_futbol_b, ocupacion_hand_a,
                                ocupacion_hand_b,
-                               ocupacion_basket_a, ocupacion_basket_b, cant_grupos, filas_mostrar, fila_desde)
+                               ocupacion_basket_a, ocupacion_basket_b, cant_grupos, filas_mostrar, fila_desde, valor_t,
+                               valor_m, uniforme_a, uniforme_b, h)
 
     def init_second_page2(self, iteraciones, limpieza, llegada_futbol, llegada_hand_a, llegada_hand_b, llegada_basket_a,
                           llegada_basket_b, ocupacion_futbol_a, ocupacion_futbol_b, ocupacion_hand_a,
                           ocupacion_hand_b, ocupacion_basket_a, ocupacion_basket_b, cant_grupos, filas_mostrar,
-                          fila_desde):
+                          fila_desde, valor_t, valor_m, uniforme_a, uniforme_b, h):
         self.tableWidgetSecond = QTableWidget(self)
-        self.tableWidgetSecond.setColumnCount(34)
+        self.tableWidgetSecond.setColumnCount(37)
         self.tableWidgetSecond.setHorizontalHeaderLabels(
             ["Evento", "Reloj", "Fútbol RND", "Fútbol Tiempo entre Llegadas", "Fútbol Próxima Llegada", "Hand RND",
              "Hand Tiempo entre Llegadas", "Hand Próxima Llegada", "Basket RND",
              "Basket Tiempo entre Llegadas", "Basket Próxima Llegada", "Cola Cancha", "Grupo Retirado", "Estado Cancha",
              "Fútbol RND", "Fútbol Tiempo de Ocupación", "Fútbol Fin Ocupación", "Hand RND", "Hand Tiempo de Ocupación",
              "Hand Fin Ocupación", "Basket RND", "Basket Tiempo de Ocupación",
-             "Basket Fin Ocupación", "Tiempo Fin Ocupación", "Tiempo de Espera", "Cantidad Grupos Fútbol",
-             "Cantidad Grupos Hand",
+             "Basket Fin Ocupación","RND", "Nivel de Mantenimiento", "Tiempo de Limpieza", "Tiempo Fin Ocupación",
+             "Tiempo de Espera", "Cantidad Grupos Fútbol", "Cantidad Grupos Hand",
              "Cantidad Grupos Basket", "Fútbol Tiempo de espera acumulado", "Hand Tiempo de espera acumulado",
              "Basket Tiempo de espera acumulado", "Tiempo de limpieza acumulado", "Cantidad Grupos Retirados",
              "Cantidad de Partidos Jugados"])
-        # Ver dónde o cómo podría poner la tasa de limpieza y el promedio a calcular
 
         self.iniciar_simulacion(iteraciones, limpieza, llegada_futbol, llegada_hand_a, llegada_hand_b, llegada_basket_a,
                                 llegada_basket_b, ocupacion_futbol_a, ocupacion_futbol_b, ocupacion_hand_a,
                                 ocupacion_hand_b, ocupacion_basket_a, ocupacion_basket_b, cant_grupos, filas_mostrar,
-                                fila_desde)
+                                fila_desde, valor_t, valor_m, uniforme_a, uniforme_b, h)
 
         self.backButton = QPushButton("Volver", self)
-        self.backButton.setGeometry(350, 540, 100, 30)
+        self.rungeKuttaButton = QPushButton("Runge Kutta", self)
+        self.backButton.setGeometry(250, 540, 100, 30)
+        self.rungeKuttaButton.setGeometry(370, 540, 120, 30)
         self.backButton.clicked.connect(self.show_main_page)
+        self.rungeKuttaButton.clicked.connect(self.open_runge_kutta_window)
+
 
         font = QFont()
         font.setPointSize(11)
         self.backButton.setFont(font)
+        self.rungeKuttaButton.setFont(font)
         self.tableWidgetSecond.setFont(font)
         self.tableWidgetSecond.horizontalHeader().setFont(font)
-        layout = QVBoxLayout()
-        layout.addWidget(self.tableWidgetSecond)
-        layout.addWidget(self.backButton)
+        layout_vertical = QVBoxLayout()  # Layout vertical principal
+        layout_horizontal = QHBoxLayout()  # Layout horizontal para los botones
+
+        layout_horizontal.addWidget(self.backButton)
+        layout_horizontal.addWidget(self.rungeKuttaButton)
+
+        layout_vertical.addWidget(self.tableWidgetSecond)
+        layout_vertical.addLayout(layout_horizontal)
         second_page_widget = QWidget()
-        second_page_widget.setLayout(layout)
+        second_page_widget.setLayout(layout_vertical)
         self.setCentralWidget(second_page_widget)
 
     def show_main_page(self):
         self.init_main_window()
+
+    def open_runge_kutta_window(self):
+        self.window.show()
+
 
     # Aca empece a modificar
 
@@ -601,7 +724,7 @@ class MyWindow(QMainWindow):
                            llegada_basket_a,
                            llegada_basket_b, ocupacion_futbol_a, ocupacion_futbol_b, ocupacion_hand_a,
                            ocupacion_hand_b, ocupacion_basket_a, ocupacion_basket_b, cant_grupos, filas_mostrar,
-                           fila_desde):
+                           fila_desde, valor_t, valor_m, uniforme_a, uniforme_b, h):
 
         ocupacion_futbol_a = ocupacion_futbol_a / 60
         ocupacion_futbol_b = ocupacion_futbol_b / 60
@@ -619,7 +742,7 @@ class MyWindow(QMainWindow):
         # EVENTO  #RELOJ #RND #TIEMPO ENTRE LLEGADAS #LLEGADA
         vectorEstado = ["Inicio", 0, rnd_futbol_llegada, 0, tiempo_llegada_futbol, rnd_hand_llegada, 0,
                         tiempo_llegada_hand,
-                        rnd_basket_llegada, 0, tiempo_llegada_basket, 0, "", "Libre", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                        rnd_basket_llegada, 0, tiempo_llegada_basket, 0, "", "Libre", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                         0, 0, 0, 0, 0, 0, 0, 0, 0]
 
         # Si fila_desde es 0, incluir el estado inicial en la tabla
@@ -631,6 +754,8 @@ class MyWindow(QMainWindow):
         primera_iteracion_fila_desde = None
 
         limpieza = limpieza / 60
+
+        resultados = self.runge_kutta(valor_t, valor_m, h)
 
         # Todo esto iria en un for o en un while que vaya iterando en el tiempo
         # después en 5 debería ir la variable iteraciones
@@ -655,7 +780,7 @@ class MyWindow(QMainWindow):
                 self.no_borrar = False
 
             if i > filas_mostrar:
-                vectorEstado = vectorEstado[:34]
+                vectorEstado = vectorEstado[:37]
 
             # Verifico que el vector cola sea mayor a 2 ya que no puedo ejecutar la función porque es solo
             # para la prioridad en el caso de que basketball se encuentre en la posición 1 del vector
@@ -681,7 +806,18 @@ class MyWindow(QMainWindow):
                                                                                          ocupacion_futbol_a,
                                                                                          ocupacion_futbol_b)
                     vectorEstado[16] = vectorEstado[15] + prox_reloj
-                    vectorEstado[23] = vectorEstado[16] + limpieza
+
+                    # APLICACIÓN DEL RUNGE KUTTA
+                    vectorEstado[24], vectorEstado[23] = self.calcular_uniforme_dif(uniforme_a, uniforme_b)
+                    if vectorEstado[24] == 1:
+                        vectorEstado[25] = resultados[0]
+                    elif vectorEstado[24] == 2:
+                        vectorEstado[25] = resultados[1]
+                    elif vectorEstado[24] == 3:
+                        vectorEstado[25] = resultados[2]
+
+                    vectorEstado[26] = vectorEstado[16] + vectorEstado[25]
+                    vectorEstado[34] += vectorEstado[25]
                     vectorEstado[12] = "NO"
                     self.bandera_tiempo_ocupacion = False
 
@@ -689,7 +825,7 @@ class MyWindow(QMainWindow):
                     self.obj_en_sim.append(objeto)
                     # Voy agregando los nombres al vector cola
                     self.cola.append(objeto[0])
-                    vectorEstado[25] += 1
+                    vectorEstado[28] += 1
                 elif (nombre_proxEvento == "Llegada handball"):
                     # Aca iria la logica si llega handball
 
@@ -705,7 +841,18 @@ class MyWindow(QMainWindow):
                                                                                            ocupacion_hand_a,
                                                                                            ocupacion_hand_b)
                     vectorEstado[19] = vectorEstado[18] + prox_reloj
-                    vectorEstado[23] = vectorEstado[19] + limpieza
+
+                    # APLICACIÓN DEL RUNGE KUTTA
+                    vectorEstado[24], vectorEstado[23] = self.calcular_uniforme_dif(uniforme_a, uniforme_b)
+                    if vectorEstado[24] == 1:
+                        vectorEstado[25] = resultados[0]
+                    elif vectorEstado[24] == 2:
+                        vectorEstado[25] = resultados[1]
+                    elif vectorEstado[24] == 3:
+                        vectorEstado[25] = resultados[2]
+
+                    vectorEstado[26] = vectorEstado[19] + vectorEstado[25]
+                    vectorEstado[34] += vectorEstado[25]
                     vectorEstado[12] = "NO"
 
                     self.bandera_tiempo_ocupacion = False
@@ -713,7 +860,7 @@ class MyWindow(QMainWindow):
                     self.obj_en_sim.append(objeto)
                     # Voy agregando los nombres al vector cola
                     self.cola.append(objeto[0])
-                    vectorEstado[26] += 1
+                    vectorEstado[29] += 1
 
                 elif (nombre_proxEvento == "Llegada basketball"):
                     # Aca iria la logica si llega un equipo de basketball
@@ -731,7 +878,18 @@ class MyWindow(QMainWindow):
                                                                                            ocupacion_basket_a,
                                                                                            ocupacion_basket_b)
                     vectorEstado[22] = vectorEstado[21] + prox_reloj
-                    vectorEstado[23] = vectorEstado[22] + limpieza
+
+                    # APLICACIÓN DEL RUNGE KUTTA
+                    vectorEstado[24], vectorEstado[23] = self.calcular_uniforme_dif(uniforme_a, uniforme_b)
+                    if vectorEstado[24] == 1:
+                        vectorEstado[25] = resultados[0]
+                    elif vectorEstado[24] == 2:
+                        vectorEstado[25] = resultados[1]
+                    elif vectorEstado[24] == 3:
+                        vectorEstado[25] = resultados[2]
+
+                    vectorEstado[26] = vectorEstado[22] + vectorEstado[25]
+                    vectorEstado[34] += vectorEstado[25]
                     vectorEstado[12] = "NO"
 
                     self.bandera_tiempo_ocupacion = False
@@ -739,7 +897,7 @@ class MyWindow(QMainWindow):
                     self.obj_en_sim.append(objeto)
                     # Voy agregando los nombres al vector cola
                     self.cola.append(objeto[0])
-                    vectorEstado[27] += 1
+                    vectorEstado[30] += 1
 
             elif i > 0:
                 retiro = self.verificar_grupo_retirado(cant_grupos)
@@ -756,7 +914,7 @@ class MyWindow(QMainWindow):
                         # Voy agregando los nombres al vector cola
                         self.cola.append(objeto[0])
                         self.tiempo_espera.append(prox_reloj)
-                        vectorEstado[25] += 1
+                        vectorEstado[28] += 1
                         vectorEstado[12] = "NO"
 
                     else:
@@ -764,7 +922,7 @@ class MyWindow(QMainWindow):
                                                                                           llegada_futbol)
                         vectorEstado[4] = vectorEstado[3] + prox_reloj
                         vectorEstado[12] = "SI"
-                        vectorEstado[32] += 1
+                        vectorEstado[35] += 1
 
                 elif (nombre_proxEvento == "Llegada handball"):
                     if retiro == False:
@@ -779,7 +937,7 @@ class MyWindow(QMainWindow):
                         # Voy agregando los nombres al vector cola
                         self.cola.append(objeto[0])
                         self.tiempo_espera.append(prox_reloj)
-                        vectorEstado[26] += 1
+                        vectorEstado[29] += 1
                         vectorEstado[12] = "NO"
 
                     else:
@@ -788,7 +946,7 @@ class MyWindow(QMainWindow):
                                                                                             llegada_hand_b)
                         vectorEstado[7] = vectorEstado[6] + prox_reloj
                         vectorEstado[12] = "SI"
-                        vectorEstado[32] += 1
+                        vectorEstado[35] += 1
 
                 elif (nombre_proxEvento == "Llegada basketball"):
                     if retiro == False:
@@ -803,7 +961,7 @@ class MyWindow(QMainWindow):
                         # Voy agregando los nombres al vector cola
                         self.cola.append(objeto[0])
                         self.tiempo_espera.append(prox_reloj)
-                        vectorEstado[27] += 1
+                        vectorEstado[30] += 1
                         vectorEstado[12] = "NO"
 
                     else:
@@ -812,7 +970,7 @@ class MyWindow(QMainWindow):
                                                                                               llegada_basket_b)
                         vectorEstado[10] = vectorEstado[9] + prox_reloj
                         vectorEstado[12] = "SI"
-                        vectorEstado[32] += 1
+                        vectorEstado[35] += 1
 
 
                 elif (nombre_proxEvento == "Fin Ocupacion futbol") or (
@@ -825,9 +983,8 @@ class MyWindow(QMainWindow):
                         # de cualquier llegada por lo tanto solo actualizo vector
                         vectorEstado[12] = "NO"
                         vectorEstado[13] = "Libre"
-                        vectorEstado[31] += limpieza
                         self.cant_partidos += 1
-                        vectorEstado[33] = self.cant_partidos
+                        vectorEstado[36] = self.cant_partidos
                         self.cola.pop(0)
                         vectorEstado[11] = len(self.cola)
                         self.bandera_tiempo_ocupacion = True
@@ -840,17 +997,27 @@ class MyWindow(QMainWindow):
                                                                                              ocupacion_futbol_a,
                                                                                              ocupacion_futbol_b)
                         vectorEstado[16] = vectorEstado[15] + prox_reloj
-                        vectorEstado[23] = vectorEstado[16] + limpieza
-                        vectorEstado[31] += limpieza
+
+                        # APLICACIÓN DEL RUNGE KUTTA
+                        vectorEstado[24], vectorEstado[23] = self.calcular_uniforme_dif(uniforme_a, uniforme_b)
+                        if vectorEstado[24] == 1:
+                            vectorEstado[25] = resultados[0]
+                        elif vectorEstado[24] == 2:
+                            vectorEstado[25] = resultados[1]
+                        elif vectorEstado[24] == 3:
+                            vectorEstado[25] = resultados[2]
+
+                        vectorEstado[26] = vectorEstado[16] + vectorEstado[25]
+                        vectorEstado[34] += vectorEstado[25]
                         vectorEstado[12] = "NO"
                         # Acá llamo a esta función ya que si llegó este evento de fin ocupación debo pasar el equipo
                         # que termino de ocupar a destruido y el que estaba en posición 1 a que esté en cancha
                         # y además actualizar las posiciones de los demás objetos en cola
                         self.actualizar_vectores(self.obj_en_sim)
 
-                        vectorEstado[24] = prox_reloj - self.tiempo_espera[0]
-                        tiempo_espera_futbol = vectorEstado[24]
-                        vectorEstado[28] += tiempo_espera_futbol
+                        vectorEstado[27] = prox_reloj - self.tiempo_espera[0]
+                        tiempo_espera_futbol = vectorEstado[27]
+                        vectorEstado[31] += tiempo_espera_futbol
 
                         self.tiempo_espera.pop(0)
                         # borro en el vector cola el equipo en posición 0 ya que termino de ocupar la cancha
@@ -859,47 +1026,67 @@ class MyWindow(QMainWindow):
                         vectorEstado[11] = len(self.cola) - 1
 
                         self.cant_partidos += 1
-                        vectorEstado[33] = self.cant_partidos
+                        vectorEstado[36] = self.cant_partidos
 
                     elif self.cola[1] == "handball":
                         vectorEstado[18], vectorEstado[17] = self.calcularFinOcupacionHandball(vectorEstado[1],
                                                                                                ocupacion_hand_a,
                                                                                                ocupacion_hand_b)
                         vectorEstado[19] = vectorEstado[18] + prox_reloj
-                        vectorEstado[23] = vectorEstado[19] + limpieza
-                        vectorEstado[31] += limpieza
+
+                        # APLICACIÓN DEL RUNGE KUTTA
+                        vectorEstado[24], vectorEstado[23] = self.calcular_uniforme_dif(uniforme_a, uniforme_b)
+                        if vectorEstado[24] == 1:
+                            vectorEstado[25] = resultados[0]
+                        elif vectorEstado[24] == 2:
+                            vectorEstado[25] = resultados[1]
+                        elif vectorEstado[24] == 3:
+                            vectorEstado[25] = resultados[2]
+
+                        vectorEstado[26] = vectorEstado[19] + vectorEstado[25]
+                        vectorEstado[34] += vectorEstado[25]
                         vectorEstado[12] = "NO"
                         self.actualizar_vectores(self.obj_en_sim)
 
-                        vectorEstado[24] = prox_reloj - self.tiempo_espera[0]
-                        tiempo_espera_hand = vectorEstado[24]
-                        vectorEstado[29] += tiempo_espera_hand
+                        vectorEstado[27] = prox_reloj - self.tiempo_espera[0]
+                        tiempo_espera_hand = vectorEstado[27]
+                        vectorEstado[32] += tiempo_espera_hand
 
                         self.tiempo_espera.pop(0)
                         self.cola.pop(0)
                         vectorEstado[11] = len(self.cola) - 1
                         self.cant_partidos += 1
-                        vectorEstado[33] = self.cant_partidos
+                        vectorEstado[36] = self.cant_partidos
 
                     elif self.cola[1] == "basketball":
                         vectorEstado[21], vectorEstado[20] = self.calcularFinOcupacionHandball(vectorEstado[1],
                                                                                                ocupacion_hand_a,
                                                                                                ocupacion_hand_b)
                         vectorEstado[22] = vectorEstado[21] + prox_reloj
-                        vectorEstado[23] = vectorEstado[22] + limpieza
-                        vectorEstado[31] += limpieza
+
+                        # APLICACIÓN DEL RUNGE KUTTA
+                        vectorEstado[24], vectorEstado[23] = self.calcular_uniforme_dif(uniforme_a, uniforme_b)
+                        if vectorEstado[24] == 1:
+                            vectorEstado[25] = resultados[0]
+                        elif vectorEstado[24] == 2:
+                            vectorEstado[25] = resultados[1]
+                        elif vectorEstado[24] == 3:
+                            vectorEstado[25] = resultados[2]
+
+                        vectorEstado[26] = vectorEstado[22] + vectorEstado[25]
+                        vectorEstado[34] += vectorEstado[25]
                         vectorEstado[12] = "NO"
                         self.actualizar_vectores(self.obj_en_sim)
 
-                        vectorEstado[24] = prox_reloj - self.tiempo_espera[0]
-                        tiempo_espera_basket = vectorEstado[24]
-                        vectorEstado[30] += tiempo_espera_basket
+                        vectorEstado[27] = prox_reloj - self.tiempo_espera[0]
+                        tiempo_espera_basket = vectorEstado[27]
+                        vectorEstado[33] += tiempo_espera_basket
 
                         self.tiempo_espera.pop(0)
                         self.cola.pop(0)
                         vectorEstado[11] = len(self.cola) - 1
                         self.cant_partidos += 1
-                        vectorEstado[33] = self.cant_partidos
+                        vectorEstado[36] = self.cant_partidos
 
             # Verificar si estamos dentro del rango de filas a mostrar
             if se_alcanzo_fila_desde and (i >= primera_iteracion_fila_desde and i <= filas_mostrar):
@@ -907,7 +1094,7 @@ class MyWindow(QMainWindow):
                     vectorEstado.extend(self.obj_en_sim)
                     self.insertar_en_tabla(vectorEstado)
                 else:
-                    vectorEstado = vectorEstado[:34]
+                    vectorEstado = vectorEstado[:37]
                     vectorEstado.extend(self.obj_en_sim)
                     self.insertar_en_tabla(vectorEstado)
 
@@ -918,12 +1105,54 @@ class MyWindow(QMainWindow):
                 vectorCalculo = self.fila_calculo(vectorEstado)
                 self.agregar_fila_flotante(vectorCalculo)
 
+
+    def runge_kutta(self,valor_t, valor_m, h):
+        vector_runge = [0, 0, 0, 0, 0, 0, 0, 0]
+        resultados = []
+
+        while True:
+
+            self.window.insertar_en_tabla_runge(vector_runge)
+
+            # Guardar vector[0] si vector[1] alcanza los umbrales 1, 2, 3
+            if vector_runge[1] >= 1 and len(resultados) == 0:
+                tiempo = vector_runge[0] * 0.1
+                resultados.append(tiempo)
+            if vector_runge[1] >= 2 and len(resultados) == 1:
+                tiempo = vector_runge[0] * 0.1
+                resultados.append(tiempo)
+            if vector_runge[7] >= 3 and len(resultados) == 2:
+                tiempo = vector_runge[6] * 0.1
+                resultados.append(tiempo)
+
+            print(resultados)
+
+            vector_runge[0] = vector_runge[6]
+            vector_runge[1] = vector_runge[7]
+
+            # Actualizar vector_runge según las fórmulas de Runge-Kutta
+            vector_runge[2] = valor_t * vector_runge[0] + valor_m * vector_runge[1] * (vector_runge[0] ** 2)
+            vector_runge[3] = valor_t * (vector_runge[0] + h / 2) + valor_m * (vector_runge[1] + (h / 2) * vector_runge[2]) * (
+                        (vector_runge[0] + h / 2) ** 2)
+            vector_runge[4] = valor_t * (vector_runge[0] + h / 2) + valor_m * (vector_runge[1] + (h / 2) * vector_runge[3]) * (
+                        (vector_runge[0] + h / 2) ** 2)
+            vector_runge[5] = valor_t * (vector_runge[0] + h/2) + valor_m * (vector_runge[1] + h * vector_runge[4]) * ((vector_runge[0] + h/2) ** 2)
+
+            vector_runge[6] = vector_runge[0] + h
+            vector_runge[7] = vector_runge[1] + (h / 6) * (vector_runge[2] + 2 * vector_runge[2] + 2 * vector_runge[2] + vector_runge[2])
+
+            # Verificar si vector_runge[1] ha alcanzado o superado 3
+            if vector_runge[1] > 3:
+                break
+
+        return resultados
+
     def proximoEvento(self, vectorEstado):
-        proximoRelojLlegada = [vectorEstado[4], vectorEstado[7], vectorEstado[10], vectorEstado[23]]
+        proximoRelojLlegada = [vectorEstado[4], vectorEstado[7], vectorEstado[10], vectorEstado[26]]
 
         # Todo este if lo unico que hace es no devolver como primer evento el fin de ocupacion, cuando vale 0 en la primer "fila" de la tabla
         # en el evento de "Inicio"
-        if vectorEstado[23] > 0 and self.bandera_tiempo_ocupacion == False:
+        if vectorEstado[26] > 0 and self.bandera_tiempo_ocupacion == False:
 
             # Encontrar el índice del valor mínimo en proximoRelojLlegada
             indice_minimo = proximoRelojLlegada.index(min(proximoRelojLlegada))
@@ -938,7 +1167,7 @@ class MyWindow(QMainWindow):
 
             nombre_reloj_minimo = nombres_reloj[indice_minimo]
 
-        elif vectorEstado[23] > 0 and self.bandera_tiempo_ocupacion == True:
+        elif vectorEstado[26] > 0 and self.bandera_tiempo_ocupacion == True:
             # Encontrar el índice del valor mínimo en proximoRelojLlegada
             indice_minimo = proximoRelojLlegada.index(
                 min(proximoRelojLlegada[0], proximoRelojLlegada[1], proximoRelojLlegada[2]))
@@ -948,7 +1177,7 @@ class MyWindow(QMainWindow):
             nombre_reloj_minimo = nombres_reloj[indice_minimo]
 
             # Devolver el número de reloj y el nombre del próximo evento
-        elif vectorEstado[23] == 0 and self.bandera_tiempo_ocupacion == False:
+        elif vectorEstado[26] == 0 and self.bandera_tiempo_ocupacion == False:
             # Encontrar el índice del valor mínimo en proximoRelojLlegada
             indice_minimo = proximoRelojLlegada.index(
                 min(proximoRelojLlegada[0], proximoRelojLlegada[1], proximoRelojLlegada[2]))
@@ -1086,19 +1315,19 @@ class MyWindow(QMainWindow):
     def fila_calculo(self, vectorEstado):
         vector_final = ["PROMEDIO DE ESPERA", 0, 0, 0, "TASA DE LIMPIEZA", 0]
 
-        if vectorEstado[25] != 0:
-            vector_final[1] = vectorEstado[28] / vectorEstado[25]
+        if vectorEstado[28] != 0:
+            vector_final[1] = vectorEstado[31] / vectorEstado[28]
         else:
             vector_final[1] = 0
-        if vectorEstado[26] != 0:
-            vector_final[2] = vectorEstado[29] / vectorEstado[26]
+        if vectorEstado[29] != 0:
+            vector_final[2] = vectorEstado[32] / vectorEstado[29]
         else:
             vector_final[2] = 0
-        if vectorEstado[27] != 0:
-            vector_final[3] = vectorEstado[30] / vectorEstado[27]
+        if vectorEstado[30] != 0:
+            vector_final[3] = vectorEstado[33] / vectorEstado[30]
         else:
             vector_final[3] = 0
-        valor = (vectorEstado[31] / self.cant_partidos) * 100
+        valor = (vectorEstado[34] / self.cant_partidos) * 100
         vector_final[5] = f"{valor:.2f}%"
 
         return vector_final
@@ -1154,9 +1383,16 @@ class MyWindow(QMainWindow):
     def calcularFinOcupacionBasketball(self, relojActual, ocupacion_basket_a, ocupacion_basket_b):
         rnd = random.random()
         rnd_redondeado = self.redondear_a_2_decimales(rnd)
-        rnd_unif = ocupacion_basket_a + rnd * (ocupacion_basket_b - ocupacion_basket_a)
+        rnd_unif = ocupacion_basket_a + rnd_redondeado * (ocupacion_basket_b - ocupacion_basket_a)
         return self.redondear_a_2_decimales(rnd_unif), rnd_redondeado
 
+    def calcular_uniforme_dif(self, uniforme_a, uniforme_b):
+        rnd = random.random()
+        rnd_redondeado = self.redondear_a_2_decimales(rnd)
+        rnd_unif = uniforme_a + rnd_redondeado * (uniforme_b - uniforme_a)
+        # Redondear directamente la parte entera
+        parte_entera = round(rnd_unif)
+        return parte_entera, rnd_redondeado
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
