@@ -755,7 +755,11 @@ class MyWindow(QMainWindow):
 
         limpieza = limpieza / 60
 
-        resultados = self.runge_kutta(valor_t, valor_m, h)
+        resultados = self.runge_kutta(valor_t, valor_m, h, uniforme_a, uniforme_b)
+        int_uniforme_a = int(uniforme_a)
+        int_uniforme_b = int(uniforme_b)
+        # Crear una lista de puntos de corte excluyendo los extremos
+        puntos_corte = list(range(int_uniforme_a + 1, int_uniforme_b))
 
         # Todo esto iria en un for o en un while que vaya iterando en el tiempo
         # después en 5 debería ir la variable iteraciones
@@ -809,12 +813,17 @@ class MyWindow(QMainWindow):
 
                     # APLICACIÓN DEL RUNGE KUTTA
                     vectorEstado[24], vectorEstado[23] = self.calcular_uniforme_dif(uniforme_a, uniforme_b)
-                    if vectorEstado[24] == 1:
+                    if vectorEstado[24] == uniforme_a:
                         vectorEstado[25] = resultados[0]
-                    elif vectorEstado[24] == 2:
-                        vectorEstado[25] = resultados[1]
-                    elif vectorEstado[24] == 3:
-                        vectorEstado[25] = resultados[2]
+
+                    elif vectorEstado[24] == uniforme_b:
+                        vectorEstado[25] = resultados[-1]
+
+                    else:
+                        if vectorEstado[24] in puntos_corte:
+                            indice = puntos_corte.index(vectorEstado[24])
+                            if 0 <= indice < len(resultados):
+                                vectorEstado[25] = resultados[indice+1]
 
                     vectorEstado[26] = vectorEstado[16] + vectorEstado[25]
                     vectorEstado[34] += vectorEstado[25]
@@ -844,12 +853,17 @@ class MyWindow(QMainWindow):
 
                     # APLICACIÓN DEL RUNGE KUTTA
                     vectorEstado[24], vectorEstado[23] = self.calcular_uniforme_dif(uniforme_a, uniforme_b)
-                    if vectorEstado[24] == 1:
+                    if vectorEstado[24] == uniforme_a:
                         vectorEstado[25] = resultados[0]
-                    elif vectorEstado[24] == 2:
-                        vectorEstado[25] = resultados[1]
-                    elif vectorEstado[24] == 3:
-                        vectorEstado[25] = resultados[2]
+
+                    elif vectorEstado[24] == uniforme_b:
+                        vectorEstado[25] = resultados[-1]
+
+                    else:
+                        if vectorEstado[24] in puntos_corte:
+                            indice = puntos_corte.index(vectorEstado[24])
+                            if 0 <= indice < len(resultados):
+                                vectorEstado[25] = resultados[indice+1]
 
                     vectorEstado[26] = vectorEstado[19] + vectorEstado[25]
                     vectorEstado[34] += vectorEstado[25]
@@ -881,12 +895,17 @@ class MyWindow(QMainWindow):
 
                     # APLICACIÓN DEL RUNGE KUTTA
                     vectorEstado[24], vectorEstado[23] = self.calcular_uniforme_dif(uniforme_a, uniforme_b)
-                    if vectorEstado[24] == 1:
+                    if vectorEstado[24] == uniforme_a:
                         vectorEstado[25] = resultados[0]
-                    elif vectorEstado[24] == 2:
-                        vectorEstado[25] = resultados[1]
-                    elif vectorEstado[24] == 3:
-                        vectorEstado[25] = resultados[2]
+
+                    elif vectorEstado[24] == uniforme_b:
+                        vectorEstado[25] = resultados[-1]
+
+                    else:
+                        if vectorEstado[24] in puntos_corte:
+                            indice = puntos_corte.index(vectorEstado[24])
+                            if 0 <= indice < len(resultados):
+                                vectorEstado[25] = resultados[indice+1]
 
                     vectorEstado[26] = vectorEstado[22] + vectorEstado[25]
                     vectorEstado[34] += vectorEstado[25]
@@ -1000,12 +1019,17 @@ class MyWindow(QMainWindow):
 
                         # APLICACIÓN DEL RUNGE KUTTA
                         vectorEstado[24], vectorEstado[23] = self.calcular_uniforme_dif(uniforme_a, uniforme_b)
-                        if vectorEstado[24] == 1:
+                        if vectorEstado[24] == uniforme_a:
                             vectorEstado[25] = resultados[0]
-                        elif vectorEstado[24] == 2:
-                            vectorEstado[25] = resultados[1]
-                        elif vectorEstado[24] == 3:
-                            vectorEstado[25] = resultados[2]
+
+                        elif vectorEstado[24] == uniforme_b:
+                            vectorEstado[25] = resultados[-1]
+
+                        else:
+                            if vectorEstado[24] in puntos_corte:
+                                indice = puntos_corte.index(vectorEstado[24])
+                                if 0 <= indice < len(resultados):
+                                    vectorEstado[25] = resultados[indice+1]
 
                         vectorEstado[26] = vectorEstado[16] + vectorEstado[25]
                         vectorEstado[34] += vectorEstado[25]
@@ -1036,12 +1060,17 @@ class MyWindow(QMainWindow):
 
                         # APLICACIÓN DEL RUNGE KUTTA
                         vectorEstado[24], vectorEstado[23] = self.calcular_uniforme_dif(uniforme_a, uniforme_b)
-                        if vectorEstado[24] == 1:
+                        if vectorEstado[24] == uniforme_a:
                             vectorEstado[25] = resultados[0]
-                        elif vectorEstado[24] == 2:
-                            vectorEstado[25] = resultados[1]
-                        elif vectorEstado[24] == 3:
-                            vectorEstado[25] = resultados[2]
+
+                        elif vectorEstado[24] == uniforme_b:
+                            vectorEstado[25] = resultados[-1]
+
+                        else:
+                            if vectorEstado[24] in puntos_corte:
+                                indice = puntos_corte.index(vectorEstado[24])
+                                if 0 <= indice < len(resultados):
+                                    vectorEstado[25] = resultados[indice+1]
 
                         vectorEstado[26] = vectorEstado[19] + vectorEstado[25]
                         vectorEstado[34] += vectorEstado[25]
@@ -1066,12 +1095,17 @@ class MyWindow(QMainWindow):
 
                         # APLICACIÓN DEL RUNGE KUTTA
                         vectorEstado[24], vectorEstado[23] = self.calcular_uniforme_dif(uniforme_a, uniforme_b)
-                        if vectorEstado[24] == 1:
+                        if vectorEstado[24] == uniforme_a:
                             vectorEstado[25] = resultados[0]
-                        elif vectorEstado[24] == 2:
-                            vectorEstado[25] = resultados[1]
-                        elif vectorEstado[24] == 3:
-                            vectorEstado[25] = resultados[2]
+
+                        elif vectorEstado[24] == uniforme_b:
+                            vectorEstado[25] = resultados[-1]
+
+                        else:
+                            if vectorEstado[24] in puntos_corte:
+                                indice = puntos_corte.index(vectorEstado[24])
+                                if 0 <= indice < len(resultados):
+                                    vectorEstado[25] = resultados[indice+1]
 
                         vectorEstado[26] = vectorEstado[22] + vectorEstado[25]
                         vectorEstado[34] += vectorEstado[25]
@@ -1106,22 +1140,32 @@ class MyWindow(QMainWindow):
                 self.agregar_fila_flotante(vectorCalculo)
 
 
-    def runge_kutta(self,valor_t, valor_m, h):
+    def runge_kutta(self,valor_t, valor_m, h, uniforme_a, uniforme_b):
         vector_runge = [0, 0, 0, 0, 0, 0, 0, 0]
         resultados = []
+        int_uniforme_a = int(uniforme_a)
+        int_uniforme_b = int(uniforme_b)
+        corte = uniforme_b - uniforme_a
+
+        # Crear una lista de puntos de corte excluyendo los extremos
+        puntos_corte = list(range(int_uniforme_a + 1, int_uniforme_b))
 
         while True:
-
+            print(puntos_corte)
+            print(vector_runge)
             self.window.insertar_en_tabla_runge(vector_runge)
 
             # Guardar vector[0] si vector[1] alcanza los umbrales 1, 2, 3
-            if vector_runge[1] >= 1 and len(resultados) == 0:
+            if vector_runge[1] >= uniforme_a and len(resultados) == 0:
                 tiempo = vector_runge[0] * 0.1
                 resultados.append(tiempo)
-            if vector_runge[1] >= 2 and len(resultados) == 1:
+
+            if vector_runge[1] >= puntos_corte[0]:
                 tiempo = vector_runge[0] * 0.1
                 resultados.append(tiempo)
-            if vector_runge[7] >= 3 and len(resultados) == 2:
+                puntos_corte.pop(0)
+
+            if vector_runge[7] >= uniforme_b and len(resultados) == corte:
                 tiempo = vector_runge[6] * 0.1
                 resultados.append(tiempo)
 
@@ -1141,8 +1185,8 @@ class MyWindow(QMainWindow):
             vector_runge[6] = vector_runge[0] + h
             vector_runge[7] = vector_runge[1] + (h / 6) * (vector_runge[2] + 2 * vector_runge[2] + 2 * vector_runge[2] + vector_runge[2])
 
-            # Verificar si vector_runge[1] ha alcanzado o superado 3
-            if vector_runge[1] > 3:
+            # Verificar si vector_runge[1] ha alcanzado o superado uniforme_b
+            if vector_runge[1] > uniforme_b:
                 break
 
         return resultados
