@@ -15,7 +15,6 @@ class MyWindow(QMainWindow):
         self.setWindowTitle("Línea de Espera")
         self.setGeometry(500, 50, 1700, 1250)  # Aumentamos el tamaño de la ventana
         self.inicial_iteraciones = "100"
-        self.inicial_limpieza = "10"
         self.inicial_llegada_futbol = "10"
         self.inicial_llegada_hand_a = "10"
         self.inicial_llegada_hand_b = "14"
@@ -51,7 +50,6 @@ class MyWindow(QMainWindow):
         # Guarda los valores iniciales de los campos de entrada
         self.initial_values = {
             'iteraciones': '',
-            'limpieza': '',
             'llegada_futbol': '',
             'llegada_hand_a': '',
             'llegada_hand_b': '',
@@ -85,8 +83,6 @@ class MyWindow(QMainWindow):
         # Campos adicionales
         self.iteraciones, self.iteraciones_input, self.iteraciones_label = self.create_input_field(
             "Número de iteraciones: ")
-        self.limpieza, self.limpieza_input, self.limpieza_label = self.create_input_field(
-            "Tiempo de Limpieza en Minutos: ")
         self.llegada_futbol, self.llegada_futbol_input, self.llegada_futbol_label = self.create_input_field(
             "Tiempo de llegada fútbol: ")
         self.llegada_hand_a, self.llegada_hand_a_input, self.llegada_hand_a_label = self.create_input_field(
@@ -127,7 +123,6 @@ class MyWindow(QMainWindow):
         font = QFont()
         font.setPointSize(11)  # Tamaño de la letra para los campos de entrada
         self.iteraciones_label.setFont(font)
-        self.limpieza_label.setFont(font)
         self.llegada_futbol_label.setFont(font)
         self.llegada_hand_a_label.setFont(font)
         self.llegada_hand_b_label.setFont(font)
@@ -149,7 +144,6 @@ class MyWindow(QMainWindow):
         self.h_label.setFont(font)
 
         self.iteraciones_input.setFont(font)
-        self.limpieza_input.setFont(font)
         self.llegada_futbol_input.setFont(font)
         self.llegada_hand_a_input.setFont(font)
         self.llegada_hand_b_input.setFont(font)
@@ -172,7 +166,6 @@ class MyWindow(QMainWindow):
 
         # Establecer el texto de los campos de entrada con los valores guardados
         self.iteraciones_input.setText(str(self.inicial_iteraciones))
-        self.limpieza_input.setText(str(self.inicial_limpieza))
         self.llegada_futbol_input.setText(str(self.inicial_llegada_futbol))
         self.llegada_hand_a_input.setText(str(self.inicial_llegada_hand_a))
         self.llegada_hand_b_input.setText(str(self.inicial_llegada_hand_b))
@@ -207,7 +200,6 @@ class MyWindow(QMainWindow):
 
         # Conectar el evento returnPressed de los campos de entrada a la función simular_action
         self.iteraciones_input.returnPressed.connect(self.simular_action)
-        self.limpieza_input.returnPressed.connect(self.simular_action)
         self.llegada_futbol_input.returnPressed.connect(self.simular_action)
         self.llegada_hand_a_input.returnPressed.connect(self.simular_action)
         self.llegada_hand_b_input.returnPressed.connect(self.simular_action)
@@ -244,8 +236,6 @@ class MyWindow(QMainWindow):
         row_layout_1 = QHBoxLayout()
         row_layout_1.addWidget(self.iteraciones_label)
         row_layout_1.addWidget(self.iteraciones_input)
-        row_layout_1.addWidget(self.limpieza_label)
-        row_layout_1.addWidget(self.limpieza_input)
         row_layout_1.addWidget(self.llegada_futbol_label)
         row_layout_1.addWidget(self.llegada_futbol_input)
         layout.addLayout(row_layout_1)
@@ -342,7 +332,6 @@ class MyWindow(QMainWindow):
 
         # Inicializar los valores de los campos
         self.iteraciones = 0
-        self.limpieza = 0
         self.llegada_futbol = 0
         self.llegada_hand_a = 0
         self.llegada_hand_b = 0
@@ -541,9 +530,6 @@ class MyWindow(QMainWindow):
         iteraciones_text = self.iteraciones_input.text()
         self.inicial_iteraciones = iteraciones_text
 
-        limpieza_text = self.limpieza_input.text()
-        self.inicial_limpieza = limpieza_text
-
         llegada_futbol_text = self.llegada_futbol_input.text()
         self.inicial_llegada_futbol = llegada_futbol_text
 
@@ -602,7 +588,7 @@ class MyWindow(QMainWindow):
         self.inicial_h = h_text
 
         # Validar que todos los campos estén completados
-        if (not iteraciones_text or not limpieza_text or not llegada_futbol_text or not llegada_hand_a_text or
+        if (not iteraciones_text or not llegada_futbol_text or not llegada_hand_a_text or
                 not llegada_hand_b_text or not llegada_basket_a_text or not llegada_basket_b_text or
                 not ocupacion_futbol_a_text or not ocupacion_futbol_b_text or not ocupacion_hand_a_text or
                 not ocupacion_hand_b_text or not ocupacion_basket_a_text or not ocupacion_basket_b_text or
@@ -614,7 +600,6 @@ class MyWindow(QMainWindow):
         # Convertir los textos a los tipos adecuados
         try:
             iteraciones = int(iteraciones_text)
-            limpieza = float(limpieza_text)
             llegada_futbol = float(llegada_futbol_text)
             llegada_hand_a = float(llegada_hand_a_text)
             llegada_hand_b = float(llegada_hand_b_text)
@@ -641,7 +626,7 @@ class MyWindow(QMainWindow):
             return
 
         # Validaciones adicionales
-        if (iteraciones <= 0 or limpieza <= 0 or llegada_futbol <= 0 or llegada_hand_a <= 0 or llegada_hand_b <= 0 or
+        if (iteraciones <= 0 or llegada_futbol <= 0 or llegada_hand_a <= 0 or llegada_hand_b <= 0 or
                 llegada_basket_a <= 0 or llegada_basket_b <= 0 or ocupacion_futbol_a < 0 or ocupacion_futbol_b < 0 or
                 ocupacion_hand_a < 0 or ocupacion_hand_b < 0 or ocupacion_basket_a < 0 or ocupacion_basket_b < 0 or
                 filas_mostrar < 0 or fila_desde < 0 or valor_t < 0 or valor_m < 0 or uniforme_a < 0 or uniforme_b < 0
@@ -656,13 +641,13 @@ class MyWindow(QMainWindow):
             return
 
         # Llamar a la función para inicializar la segunda página
-        self.init_second_page2(iteraciones, limpieza, llegada_futbol, llegada_hand_a, llegada_hand_b, llegada_basket_a,
+        self.init_second_page2(iteraciones, llegada_futbol, llegada_hand_a, llegada_hand_b, llegada_basket_a,
                                llegada_basket_b, ocupacion_futbol_a, ocupacion_futbol_b, ocupacion_hand_a,
                                ocupacion_hand_b,
                                ocupacion_basket_a, ocupacion_basket_b, cant_grupos, filas_mostrar, fila_desde, valor_t,
                                valor_m, uniforme_a, uniforme_b, h)
 
-    def init_second_page2(self, iteraciones, limpieza, llegada_futbol, llegada_hand_a, llegada_hand_b, llegada_basket_a,
+    def init_second_page2(self, iteraciones, llegada_futbol, llegada_hand_a, llegada_hand_b, llegada_basket_a,
                           llegada_basket_b, ocupacion_futbol_a, ocupacion_futbol_b, ocupacion_hand_a,
                           ocupacion_hand_b, ocupacion_basket_a, ocupacion_basket_b, cant_grupos, filas_mostrar,
                           fila_desde, valor_t, valor_m, uniforme_a, uniforme_b, h):
@@ -680,7 +665,7 @@ class MyWindow(QMainWindow):
              "Basket Tiempo de espera acumulado", "Tiempo de limpieza acumulado", "Cantidad Grupos Retirados",
              "Cantidad de Partidos Jugados"])
 
-        self.iniciar_simulacion(iteraciones, limpieza, llegada_futbol, llegada_hand_a, llegada_hand_b, llegada_basket_a,
+        self.iniciar_simulacion(iteraciones, llegada_futbol, llegada_hand_a, llegada_hand_b, llegada_basket_a,
                                 llegada_basket_b, ocupacion_futbol_a, ocupacion_futbol_b, ocupacion_hand_a,
                                 ocupacion_hand_b, ocupacion_basket_a, ocupacion_basket_b, cant_grupos, filas_mostrar,
                                 fila_desde, valor_t, valor_m, uniforme_a, uniforme_b, h)
@@ -720,7 +705,7 @@ class MyWindow(QMainWindow):
 
     # Aca empece a modificar
 
-    def iniciar_simulacion(self, iteraciones, limpieza, llegada_futbol, llegada_hand_a, llegada_hand_b,
+    def iniciar_simulacion(self, iteraciones, llegada_futbol, llegada_hand_a, llegada_hand_b,
                            llegada_basket_a,
                            llegada_basket_b, ocupacion_futbol_a, ocupacion_futbol_b, ocupacion_hand_a,
                            ocupacion_hand_b, ocupacion_basket_a, ocupacion_basket_b, cant_grupos, filas_mostrar,
@@ -752,8 +737,6 @@ class MyWindow(QMainWindow):
         # Variables para controlar la iteración desde fila_desde
         se_alcanzo_fila_desde = False
         primera_iteracion_fila_desde = None
-
-        limpieza = limpieza / 60
 
         resultados = self.runge_kutta(valor_t, valor_m, h, uniforme_a, uniforme_b)
         int_uniforme_a = int(uniforme_a)
@@ -1160,7 +1143,7 @@ class MyWindow(QMainWindow):
                 tiempo = vector_runge[0] * 0.1
                 resultados.append(tiempo)
 
-            if vector_runge[1] >= puntos_corte[0]:
+            if len(puntos_corte) > 0 and vector_runge[1] >= puntos_corte[0]:
                 tiempo = vector_runge[0] * 0.1
                 resultados.append(tiempo)
                 puntos_corte.pop(0)
