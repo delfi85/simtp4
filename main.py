@@ -1231,7 +1231,7 @@ class MyWindow(QMainWindow):
             if (empezar):
                 for i in range(cantidad+1):
                     if vector_runge[1] >= valor_a + i and len(resultados) == i:
-                        tiempo = vector_runge[0] * 10
+                        tiempo = (vector_runge[0] * 10) / 60
                         resultados.append(tiempo)
 
             print(resultados)
