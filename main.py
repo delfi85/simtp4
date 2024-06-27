@@ -1210,29 +1210,13 @@ class MyWindow(QMainWindow):
 
             self.window.insertar_en_tabla_runge(vector_runge)
 
-            # Guardar vector[0] si vector[1] alcanza los umbrales 1, 2, 3
-            #if vector_runge[1] >= 1 and len(resultados) == 0:
-            #    tiempo = vector_runge[0] * 0.1
-            #    resultados.append(tiempo)
-            #if vector_runge[1] >= 2 and len(resultados) == 1:
-            #    tiempo = vector_runge[0] * 0.1
-            #    resultados.append(tiempo)
-            #if vector_runge[7] >= 3 and len(resultados) == 2:
-            #    tiempo = vector_runge[6] * 0.1
-            #    resultados.append(tiempo)
-
             cantidad = valor_b - valor_a
 
-            #Primero tengo que buscar el valor de A en la tabla para empezar a iterar desde ahi
-            empezar = False
-            if vector_runge[1] >= valor_a:
-                empezar = True
-
-            if (empezar):
-                for i in range(cantidad+1):
-                    if vector_runge[1] >= valor_a + i and len(resultados) == i:
-                        tiempo = (vector_runge[0] * 10) / 60
-                        resultados.append(tiempo)
+            
+            for i in range(cantidad+1):
+                if vector_runge[1] >= valor_a + i and len(resultados) == i:
+                    tiempo = (vector_runge[0] * 10) / 60
+                    resultados.append(tiempo)
 
             print(resultados)
 
