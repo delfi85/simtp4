@@ -206,7 +206,6 @@ class MyWindow(QMainWindow):
 
         # Conectar el evento returnPressed de los campos de entrada a la función simular_action
         self.iteraciones_input.returnPressed.connect(self.simular_action)
-        
         self.llegada_futbol_input.returnPressed.connect(self.simular_action)
         self.llegada_hand_a_input.returnPressed.connect(self.simular_action)
         self.llegada_hand_b_input.returnPressed.connect(self.simular_action)
@@ -711,11 +710,14 @@ class MyWindow(QMainWindow):
         self.setCentralWidget(second_page_widget)
 
     def show_main_page(self):
+        self.clear_runge_kutta()
         self.init_main_window()
 
     def open_runge_kutta_window(self):
         self.window.show()
 
+    def clear_runge_kutta(self):
+        self.window.limpiar_tabla()
 
     # Aca empece a modificar
 

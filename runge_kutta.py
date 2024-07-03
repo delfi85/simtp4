@@ -27,6 +27,9 @@ class RungeKuttaWindow(QWidget):  # Cambiado a QWidget en lugar de QMainWindow
         layout.addWidget(self.tableWidgetRunge)
 
         self.setLayout(layout)  # Establece el layout en la propia QWidget
+    
+    def limpiar_tabla(self):
+        self.tableWidgetRunge.setRowCount(0)
 
     def insertar_en_tabla_runge(self, fila):
         # Obtiene el número de filas existentes en la tabla
