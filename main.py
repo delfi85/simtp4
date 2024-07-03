@@ -35,6 +35,7 @@ class MyWindow(QMainWindow):
         self.inicial_uniforme_b = "3"
         self.inicial_h = "0.1"
         self.acum_ocup = 0
+        self.ultima_fila_a_mostrar = 0
         # Declaro la variable cola acá para poder utilizarla en las funciones que quiera
         self.cola = []
         self.cant_partidos = 0
@@ -743,6 +744,18 @@ class MyWindow(QMainWindow):
         se_alcanzo_fila_desde = False
         primera_iteracion_fila_desde = None
 
+        self.contador_futbol = 0
+        self.contador_handball = 0
+        self.contador_basketball = 0
+
+        self.contador_futbol_fin = 0
+        self.contador_handball_fin = 0
+        self.contador_basketball_fin = 0
+
+
+        contador_fila = 0
+
+
         resultados = self.runge_kutta(valor_t, valor_m, h, uniforme_a, uniforme_b)
 
         # Todo esto iria en un for o en un while que vaya iterando en el tiempo
@@ -761,13 +774,16 @@ class MyWindow(QMainWindow):
             if prox_reloj >= fila_desde and not se_alcanzo_fila_desde:
                 se_alcanzo_fila_desde = True
                 primera_iteracion_fila_desde = i
+                print(i)
+                self.ultima_fila_a_mostrar = primera_iteracion_fila_desde + filas_mostrar - 1
+                print(self.ultima_fila_a_mostrar)
 
-            if se_alcanzo_fila_desde and (i >= primera_iteracion_fila_desde and i <= filas_mostrar):
+            if se_alcanzo_fila_desde and (i >= primera_iteracion_fila_desde and i <= self.ultima_fila_a_mostrar):
                 self.no_borrar = True
             else:
                 self.no_borrar = False
 
-            if i > filas_mostrar:
+            if i > self.ultima_fila_a_mostrar:
                 vectorEstado = vectorEstado[:37]
 
             # Verifico que el vector cola sea mayor a 2 ya que no puedo ejecutar la función porque es solo
@@ -782,6 +798,9 @@ class MyWindow(QMainWindow):
                 if (nombre_proxEvento == "Llegada futbol"):
                     # Aca iria la logica si llega un equipo de futbol
                     # Primero calculamos la proxima llegada de un equipo de futbol
+                    self.contador_futbol += 1
+                    nombre_proxEvento_num = nombre_proxEvento + " " + str(self.contador_futbol)
+                    vectorEstado[0] = nombre_proxEvento_num
 
                     vectorEstado[3], vectorEstado[2] = self.calcularProxLlegadaFutbol(vectorEstado[1], llegada_futbol)
 
@@ -802,9 +821,9 @@ class MyWindow(QMainWindow):
                     uniforme_a = int(uniforme_a)
                     uniforme_b = int(uniforme_b)
                     cant_niveles = uniforme_b - uniforme_a
-                    for i in range(cant_niveles + 1):
-                        if vectorEstado[24] == i + uniforme_a:
-                            vectorEstado[25] = resultados[i]
+                    for f in range(cant_niveles + 1):
+                        if vectorEstado[24] == f + uniforme_a:
+                            vectorEstado[25] = resultados[f]
 
                     vectorEstado[26] = vectorEstado[16] + vectorEstado[25]
                     vectorEstado[34] += vectorEstado[25]
@@ -818,6 +837,9 @@ class MyWindow(QMainWindow):
                     vectorEstado[28] += 1
                 elif (nombre_proxEvento == "Llegada handball"):
                     # Aca iria la logica si llega handball
+                    self.contador_handball += 1
+                    nombre_proxEvento_num = nombre_proxEvento + " " + str(self.contador_handball)
+                    vectorEstado[0] = nombre_proxEvento_num
 
                     vectorEstado[6], vectorEstado[5] = self.calcularProxLlegadaHandball(vectorEstado[1], llegada_hand_a,
                                                                                         llegada_hand_b)
@@ -839,9 +861,9 @@ class MyWindow(QMainWindow):
                     uniforme_a = int(uniforme_a)
                     uniforme_b = int(uniforme_b)
                     cant_niveles = uniforme_b - uniforme_a
-                    for i in range(cant_niveles + 1):
-                        if vectorEstado[24] == i + uniforme_a:
-                            vectorEstado[25] = resultados[i]
+                    for e in range(cant_niveles + 1):
+                        if vectorEstado[24] == e + uniforme_a:
+                            vectorEstado[25] = resultados[e]
 
                     vectorEstado[26] = vectorEstado[19] + vectorEstado[25]
                     vectorEstado[34] += vectorEstado[25]
@@ -856,6 +878,9 @@ class MyWindow(QMainWindow):
 
                 elif (nombre_proxEvento == "Llegada basketball"):
                     # Aca iria la logica si llega un equipo de basketball
+                    self.contador_basketball += 1
+                    nombre_proxEvento_num = nombre_proxEvento + " " + str(self.contador_basketball)
+                    vectorEstado[0] = nombre_proxEvento_num
 
                     vectorEstado[9], vectorEstado[8] = self.calcularProxLlegadaBasketball(vectorEstado[1],
                                                                                           llegada_basket_a,
@@ -878,9 +903,9 @@ class MyWindow(QMainWindow):
                     uniforme_a = int(uniforme_a)
                     uniforme_b = int(uniforme_b)
                     cant_niveles = uniforme_b - uniforme_a
-                    for i in range(cant_niveles + 1):
-                        if vectorEstado[24] == i + uniforme_a:
-                            vectorEstado[25] = resultados[i]
+                    for d in range(cant_niveles + 1):
+                        if vectorEstado[24] == d + uniforme_a:
+                            vectorEstado[25] = resultados[d]
 
                     vectorEstado[26] = vectorEstado[22] + vectorEstado[25]
                     vectorEstado[34] += vectorEstado[25]
@@ -894,12 +919,15 @@ class MyWindow(QMainWindow):
                     vectorEstado[30] += 1
 
             elif i > 0:
-                retiro = self.verificar_grupo_retirado(cant_grupos)
+                retiro = self.verificar_grupo_retirado(cant_grupos)git
 
                 if (nombre_proxEvento == "Llegada futbol"):
                     if retiro == False:
                         vectorEstado[3], vectorEstado[2] = self.calcularProxLlegadaFutbol(vectorEstado[1],
                                                                                           llegada_futbol)
+                        self.contador_futbol += 1
+                        nombre_proxEvento_num = nombre_proxEvento + " " + str(self.contador_futbol)
+                        vectorEstado[0] = nombre_proxEvento_num
 
                         vectorEstado[4] = vectorEstado[3] + prox_reloj
 
@@ -918,12 +946,19 @@ class MyWindow(QMainWindow):
                         vectorEstado[12] = "SI"
                         vectorEstado[35] += 1
                         vectorEstado[11] = len(self.cola) - 1
+                        self.contador_futbol += 1
+                        nombre_proxEvento_num = nombre_proxEvento + " " + str(self.contador_futbol)
+                        vectorEstado[0] = nombre_proxEvento_num
+                        self.contador_futbol_fin += 1
 
                 elif (nombre_proxEvento == "Llegada handball"):
                     if retiro == False:
                         vectorEstado[6], vectorEstado[5] = self.calcularProxLlegadaHandball(vectorEstado[1],
                                                                                             llegada_hand_a,
                                                                                             llegada_hand_b)
+                        self.contador_handball += 1
+                        nombre_proxEvento_num = nombre_proxEvento + " " + str(self.contador_handball)
+                        vectorEstado[0] = nombre_proxEvento_num
 
                         vectorEstado[7] = vectorEstado[6] + prox_reloj
 
@@ -943,12 +978,20 @@ class MyWindow(QMainWindow):
                         vectorEstado[12] = "SI"
                         vectorEstado[35] += 1
                         vectorEstado[11] = len(self.cola) - 1
+                        self.contador_handball += 1
+                        nombre_proxEvento_num = nombre_proxEvento + " " + str(self.contador_handball)
+                        vectorEstado[0] = nombre_proxEvento_num
+                        self.contador_handball_fin += 1
+
 
                 elif (nombre_proxEvento == "Llegada basketball"):
                     if retiro == False:
                         vectorEstado[9], vectorEstado[8] = self.calcularProxLlegadaBasketball(vectorEstado[1],
                                                                                               llegada_basket_a,
                                                                                               llegada_basket_b)
+                        self.contador_basketball += 1
+                        nombre_proxEvento_num = nombre_proxEvento + " " + str(self.contador_basketball)
+                        vectorEstado[0] = nombre_proxEvento_num
 
                         vectorEstado[10] = vectorEstado[9] + prox_reloj
 
@@ -968,11 +1011,30 @@ class MyWindow(QMainWindow):
                         vectorEstado[12] = "SI"
                         vectorEstado[35] += 1
                         vectorEstado[11] = len(self.cola) - 1
+                        self.contador_basketball += 1
+                        nombre_proxEvento_num = nombre_proxEvento + " " + str(self.contador_basketball)
+                        vectorEstado[0] = nombre_proxEvento_num
+
 
 
                 elif (nombre_proxEvento == "Fin Ocupacion futbol") or (
                         nombre_proxEvento == "Fin Ocupacion handball") or (
                         nombre_proxEvento == "Fin Ocupacion basketball"):
+
+                    if nombre_proxEvento == "Fin Ocupacion futbol":
+                        self.contador_futbol_fin += 1
+                        nombre_proxEvento_num = nombre_proxEvento + " " + str(self.contador_futbol_fin)
+                        vectorEstado[0] = nombre_proxEvento_num
+
+                    if nombre_proxEvento == "Fin Ocupacion handball":
+                        self.contador_handball_fin += 1
+                        nombre_proxEvento_num = nombre_proxEvento + " " + str(self.contador_handball_fin)
+                        vectorEstado[0] = nombre_proxEvento_num
+
+                    if nombre_proxEvento == "Fin Ocupacion basketball":
+                        self.contador_basketball_fin += 1
+                        nombre_proxEvento_num = nombre_proxEvento + " " + str(self.contador_basketball_fin)
+                        vectorEstado[0] = nombre_proxEvento_num
 
                     if len(self.cola) == 1:
                         self.actualizar_vectores(self.obj_en_sim)
@@ -1002,9 +1064,9 @@ class MyWindow(QMainWindow):
                         uniforme_a = int(uniforme_a)
                         uniforme_b = int(uniforme_b)
                         cant_niveles = uniforme_b - uniforme_a
-                        for i in range(cant_niveles + 1):
-                            if vectorEstado[24] == i+uniforme_a:
-                                vectorEstado[25] = resultados[i]
+                        for c in range(cant_niveles + 1):
+                            if vectorEstado[24] == c + uniforme_a:
+                                vectorEstado[25] = resultados[c]
 
                         vectorEstado[26] = vectorEstado[16] + vectorEstado[25]
                         vectorEstado[34] += vectorEstado[25]
@@ -1040,9 +1102,9 @@ class MyWindow(QMainWindow):
                         uniforme_a = int(uniforme_a)
                         uniforme_b = int(uniforme_b)
                         cant_niveles = uniforme_b - uniforme_a
-                        for i in range(cant_niveles + 1):
-                            if vectorEstado[24] == i + uniforme_a:
-                                vectorEstado[25] = resultados[i]
+                        for b in range(cant_niveles + 1):
+                            if vectorEstado[24] == b + uniforme_a:
+                                vectorEstado[25] = resultados[b]
 
                         vectorEstado[26] = vectorEstado[19] + vectorEstado[25]
                         vectorEstado[34] += vectorEstado[25]
@@ -1072,9 +1134,9 @@ class MyWindow(QMainWindow):
                         uniforme_a = int(uniforme_a)
                         uniforme_b = int(uniforme_b)
                         cant_niveles = uniforme_b - uniforme_a
-                        for i in range(cant_niveles + 1):
-                            if vectorEstado[24] == i + uniforme_a:
-                                vectorEstado[25] = resultados[i]
+                        for a in range(cant_niveles + 1):
+                            if vectorEstado[24] == a + uniforme_a:
+                                vectorEstado[25] = resultados[a]
 
                         vectorEstado[26] = vectorEstado[22] + vectorEstado[25]
                         vectorEstado[34] += vectorEstado[25]
@@ -1092,16 +1154,18 @@ class MyWindow(QMainWindow):
                         vectorEstado[36] = self.cant_partidos
 
             # Verificar si estamos dentro del rango de filas a mostrar
-            if se_alcanzo_fila_desde and (i >= primera_iteracion_fila_desde and i <= filas_mostrar):
-                if len(vectorEstado) == 34:
+            if se_alcanzo_fila_desde and (i >= primera_iteracion_fila_desde and i <= self.ultima_fila_a_mostrar) and contador_fila <= self.ultima_fila_a_mostrar:
+                if len(vectorEstado) == 37:
+                    contador_fila += 1
                     vectorEstado.extend(self.obj_en_sim)
                     self.insertar_en_tabla(vectorEstado)
                 else:
+                    contador_fila += 1
                     vectorEstado = vectorEstado[:37]
                     vectorEstado.extend(self.obj_en_sim)
                     self.insertar_en_tabla(vectorEstado)
 
-            elif i == iteraciones - 1:
+            if i == iteraciones - 1:
 
                 self.insertar_en_tabla(vectorEstado)
 
@@ -1114,9 +1178,6 @@ class MyWindow(QMainWindow):
         resultados = []
         int_uniforme_a = int(uniforme_a)
         int_uniforme_b = int(uniforme_b)
-
-        # Crear una lista de puntos de corte excluyendo los extremos
-        puntos_corte = list(range(int_uniforme_a + 1, int_uniforme_b))
 
         while True:
             self.window.insertar_en_tabla_runge(vector_runge)
