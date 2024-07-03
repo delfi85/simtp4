@@ -919,7 +919,7 @@ class MyWindow(QMainWindow):
                     vectorEstado[30] += 1
 
             elif i > 0:
-                retiro = self.verificar_grupo_retirado(cant_grupos)git
+                retiro = self.verificar_grupo_retirado(cant_grupos)
 
                 if (nombre_proxEvento == "Llegada futbol"):
                     if retiro == False:
