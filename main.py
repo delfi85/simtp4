@@ -34,6 +34,7 @@ class MyWindow(QMainWindow):
         self.inicial_uniforme_a = "1"
         self.inicial_uniforme_b = "3"
         self.inicial_h = "0.1"
+        self.acum_ocup = 0
         # Declaro la variable cola acá para poder utilizarla en las funciones que quiera
         self.cola = []
         self.cant_partidos = 0
@@ -84,39 +85,39 @@ class MyWindow(QMainWindow):
         self.iteraciones, self.iteraciones_input, self.iteraciones_label = self.create_input_field(
             "Número de iteraciones: ")
         self.llegada_futbol, self.llegada_futbol_input, self.llegada_futbol_label = self.create_input_field(
-            "Tiempo de llegada fútbol: ")
+            "Tiempo de llegada fútbol (Horas): ")
         self.llegada_hand_a, self.llegada_hand_a_input, self.llegada_hand_a_label = self.create_input_field(
-            "Tiempo de llegada handball A: ")
+            "Tiempo de llegada handball A (Horas): ")
         self.llegada_hand_b, self.llegada_hand_b_input, self.llegada_hand_b_label = self.create_input_field(
-            "Tiempo de llegada handball B: ")
+            "Tiempo de llegada handball B (Horas): ")
         self.llegada_basket_a, self.llegada_basket_a_input, self.llegada_basket_a_label = self.create_input_field(
-            "Tiempo de llegada basket A: ")
+            "Tiempo de llegada basket A (Horas): ")
         self.llegada_basket_b, self.llegada_basket_b_input, self.llegada_basket_b_label = self.create_input_field(
-            "Tiempo de llegada basket B: ")
+            "Tiempo de llegada basket B (Horas): ")
         self.ocupacion_futbol_a, self.ocupacion_futbol_a_input, self.ocupacion_futbol_a_label = self.create_input_field(
-            "Tiempo de ocupación fútbol A: ")
+            "Tiempo de ocupación fútbol A (Minutos): ")
         self.ocupacion_futbol_b, self.ocupacion_futbol_b_input, self.ocupacion_futbol_b_label = self.create_input_field(
-            "Tiempo de ocupación fútbol B: ")
+            "Tiempo de ocupación fútbol B (Minutos): ")
         self.ocupacion_hand_a, self.ocupacion_hand_a_input, self.ocupacion_hand_a_label = self.create_input_field(
-            "Tiempo de ocupación hand A: ")
+            "Tiempo de ocupación hand A (Minutos): ")
         self.ocupacion_hand_b, self.ocupacion_hand_b_input, self.ocupacion_hand_b_label = self.create_input_field(
-            "Tiempo de ocupación hand B: ")
+            "Tiempo de ocupación hand B (Minutos): ")
         self.ocupacion_basket_a, self.ocupacion_basket_a_input, self.ocupacion_basket_a_label = self.create_input_field(
-            "Tiempo de ocupación basket A: ")
+            "Tiempo de ocupación basket A (Minutos): ")
         self.ocupacion_basket_b, self.ocupacion_basket_b_input, self.ocupacion_basket_b_label = self.create_input_field(
-            "Tiempo de ocupación basket B: ")
+            "Tiempo de ocupación basket B (Minutos): ")
         self.cant_grupos, self.cant_grupos_input, self.cant_grupos_label = self.create_input_field(
-            "Cantidad de grupos: ")
+            "Cantidad de grupos max en COLA: ")
         self.filas_mostrar, self.filas_mostrar_input, self.filas_mostrar_label = self.create_input_field(
             "Cantidad filas a mostrar: ")
         self.fila_desde, self.fila_desde_input, self.fila_desde_label = self.create_input_field(
             "Mostrar desde la hora: ")
 
         # Campos de entrada para RUNGE KUTTA
-        self.valor_t, self.valor_t_input, self.valor_t_label = self.create_input_field("Valor de t: ")
-        self.valor_m, self.valor_m_input, self.valor_m_label = self.create_input_field("Valor de M: ")
-        self.uniforme_a, self.uniforme_a_input, self.uniforme_a_label = self.create_input_field("Uniforme A: ")
-        self.uniforme_b, self.uniforme_b_input, self.uniforme_b_label = self.create_input_field("Uniforme B: ")
+        self.valor_t, self.valor_t_input, self.valor_t_label = self.create_input_field("Coeficiente de t: ")
+        self.valor_m, self.valor_m_input, self.valor_m_label = self.create_input_field("Coeficiente de M: ")
+        self.uniforme_a, self.uniforme_a_input, self.uniforme_a_label = self.create_input_field("Uniforme A (Mantenimiento): ")
+        self.uniforme_b, self.uniforme_b_input, self.uniforme_b_label = self.create_input_field("Uniforme B (Mantenimiento): ")
         self.h, self.h_input, self.h_label = self.create_input_field("h: ")
 
         # Ajustar el tamaño de la letra para los campos de entrada
@@ -360,6 +361,7 @@ class MyWindow(QMainWindow):
         self.tiempo_espera = []
         self.obj_en_sim = []
         self.no_borrar = False
+        self.acum_ocup = 0
 
     def cancel_action(self):
         self.close()
@@ -654,12 +656,12 @@ class MyWindow(QMainWindow):
         self.tableWidgetSecond = QTableWidget(self)
         self.tableWidgetSecond.setColumnCount(37)
         self.tableWidgetSecond.setHorizontalHeaderLabels(
-            ["Evento", "Reloj", "Fútbol RND", "Fútbol Tiempo entre Llegadas", "Fútbol Próxima Llegada", "Hand RND",
-             "Hand Tiempo entre Llegadas", "Hand Próxima Llegada", "Basket RND",
+            ["Evento", "Reloj", "Fútbol RND (Llegada) ", "Fútbol Tiempo entre Llegadas", "Fútbol Próxima Llegada", "Hand RND (Llegada)",
+             "Hand Tiempo entre Llegadas", "Hand Próxima Llegada", "Basket RND (Llegada)",
              "Basket Tiempo entre Llegadas", "Basket Próxima Llegada", "Cola Cancha", "Grupo Retirado", "Estado Cancha",
-             "Fútbol RND", "Fútbol Tiempo de Ocupación", "Fútbol Fin Ocupación", "Hand RND", "Hand Tiempo de Ocupación",
-             "Hand Fin Ocupación", "Basket RND", "Basket Tiempo de Ocupación",
-             "Basket Fin Ocupación","RND", "Nivel de Mantenimiento", "Tiempo de Limpieza", "Tiempo Fin Ocupación",
+             "Fútbol RND (Ocupac)", "Fútbol Tiempo de Ocupación", "Fútbol Fin Ocupación", "Hand RND (Ocupac)", "Hand Tiempo de Ocupación",
+             "Hand Fin Ocupación", "Basket RND (Ocupac)", "Basket Tiempo de Ocupación",
+             "Basket Fin Ocupación","RND (Nivel Mant)", "Nivel de Mantenimiento", "Tiempo de Limpieza", "Tiempo Fin Ocupación",
              "Tiempo de Espera", "Cantidad Grupos Fútbol", "Cantidad Grupos Hand",
              "Cantidad Grupos Basket", "Fútbol Tiempo de espera acumulado", "Hand Tiempo de espera acumulado",
              "Basket Tiempo de espera acumulado", "Tiempo de limpieza acumulado", "Cantidad Grupos Retirados",
@@ -697,11 +699,14 @@ class MyWindow(QMainWindow):
         self.setCentralWidget(second_page_widget)
 
     def show_main_page(self):
+        self.clear_runge_kutta()
         self.init_main_window()
 
     def open_runge_kutta_window(self):
         self.window.show()
 
+    def clear_runge_kutta(self):
+        self.window.limpiar_tabla()
 
     # Aca empece a modificar
 
@@ -739,10 +744,6 @@ class MyWindow(QMainWindow):
         primera_iteracion_fila_desde = None
 
         resultados = self.runge_kutta(valor_t, valor_m, h, uniforme_a, uniforme_b)
-        int_uniforme_a = int(uniforme_a)
-        int_uniforme_b = int(uniforme_b)
-        # Crear una lista de puntos de corte excluyendo los extremos
-        puntos_corte = list(range(int_uniforme_a + 1, int_uniforme_b))
 
         # Todo esto iria en un for o en un while que vaya iterando en el tiempo
         # después en 5 debería ir la variable iteraciones
@@ -793,20 +794,17 @@ class MyWindow(QMainWindow):
                                                                                          ocupacion_futbol_a,
                                                                                          ocupacion_futbol_b)
                     vectorEstado[16] = vectorEstado[15] + prox_reloj
+                    self.acum_ocup += vectorEstado[15]
+                    print(vectorEstado[15])
 
-                    # APLICACIÓN DEL RUNGE KUTTA
+                    # Aplicacion del runge kutta 2
                     vectorEstado[24], vectorEstado[23] = self.calcular_uniforme_dif(uniforme_a, uniforme_b)
-                    if vectorEstado[24] == uniforme_a:
-                        vectorEstado[25] = resultados[0]
-
-                    elif vectorEstado[24] == uniforme_b:
-                        vectorEstado[25] = resultados[-1]
-
-                    else:
-                        if vectorEstado[24] in puntos_corte:
-                            indice = puntos_corte.index(vectorEstado[24])
-                            if 0 <= indice < len(resultados):
-                                vectorEstado[25] = resultados[indice+1]
+                    uniforme_a = int(uniforme_a)
+                    uniforme_b = int(uniforme_b)
+                    cant_niveles = uniforme_b - uniforme_a
+                    for i in range(cant_niveles + 1):
+                        if vectorEstado[24] == i + uniforme_a:
+                            vectorEstado[25] = resultados[i]
 
                     vectorEstado[26] = vectorEstado[16] + vectorEstado[25]
                     vectorEstado[34] += vectorEstado[25]
@@ -833,20 +831,17 @@ class MyWindow(QMainWindow):
                                                                                            ocupacion_hand_a,
                                                                                            ocupacion_hand_b)
                     vectorEstado[19] = vectorEstado[18] + prox_reloj
+                    self.acum_ocup += vectorEstado[18]
+                    print(vectorEstado[18])
 
-                    # APLICACIÓN DEL RUNGE KUTTA
+                    # Aplicacion del rounge kutta 2
                     vectorEstado[24], vectorEstado[23] = self.calcular_uniforme_dif(uniforme_a, uniforme_b)
-                    if vectorEstado[24] == uniforme_a:
-                        vectorEstado[25] = resultados[0]
-
-                    elif vectorEstado[24] == uniforme_b:
-                        vectorEstado[25] = resultados[-1]
-
-                    else:
-                        if vectorEstado[24] in puntos_corte:
-                            indice = puntos_corte.index(vectorEstado[24])
-                            if 0 <= indice < len(resultados):
-                                vectorEstado[25] = resultados[indice+1]
+                    uniforme_a = int(uniforme_a)
+                    uniforme_b = int(uniforme_b)
+                    cant_niveles = uniforme_b - uniforme_a
+                    for i in range(cant_niveles + 1):
+                        if vectorEstado[24] == i + uniforme_a:
+                            vectorEstado[25] = resultados[i]
 
                     vectorEstado[26] = vectorEstado[19] + vectorEstado[25]
                     vectorEstado[34] += vectorEstado[25]
@@ -875,20 +870,17 @@ class MyWindow(QMainWindow):
                                                                                            ocupacion_basket_a,
                                                                                            ocupacion_basket_b)
                     vectorEstado[22] = vectorEstado[21] + prox_reloj
+                    self.acum_ocup += vectorEstado[21]
+                    print(vectorEstado[21])
 
-                    # APLICACIÓN DEL RUNGE KUTTA
+                    # Aplicacion del rounge kutta 2
                     vectorEstado[24], vectorEstado[23] = self.calcular_uniforme_dif(uniforme_a, uniforme_b)
-                    if vectorEstado[24] == uniforme_a:
-                        vectorEstado[25] = resultados[0]
-
-                    elif vectorEstado[24] == uniforme_b:
-                        vectorEstado[25] = resultados[-1]
-
-                    else:
-                        if vectorEstado[24] in puntos_corte:
-                            indice = puntos_corte.index(vectorEstado[24])
-                            if 0 <= indice < len(resultados):
-                                vectorEstado[25] = resultados[indice+1]
+                    uniforme_a = int(uniforme_a)
+                    uniforme_b = int(uniforme_b)
+                    cant_niveles = uniforme_b - uniforme_a
+                    for i in range(cant_niveles + 1):
+                        if vectorEstado[24] == i + uniforme_a:
+                            vectorEstado[25] = resultados[i]
 
                     vectorEstado[26] = vectorEstado[22] + vectorEstado[25]
                     vectorEstado[34] += vectorEstado[25]
@@ -925,6 +917,7 @@ class MyWindow(QMainWindow):
                         vectorEstado[4] = vectorEstado[3] + prox_reloj
                         vectorEstado[12] = "SI"
                         vectorEstado[35] += 1
+                        vectorEstado[11] = len(self.cola) - 1
 
                 elif (nombre_proxEvento == "Llegada handball"):
                     if retiro == False:
@@ -949,6 +942,7 @@ class MyWindow(QMainWindow):
                         vectorEstado[7] = vectorEstado[6] + prox_reloj
                         vectorEstado[12] = "SI"
                         vectorEstado[35] += 1
+                        vectorEstado[11] = len(self.cola) - 1
 
                 elif (nombre_proxEvento == "Llegada basketball"):
                     if retiro == False:
@@ -973,6 +967,7 @@ class MyWindow(QMainWindow):
                         vectorEstado[10] = vectorEstado[9] + prox_reloj
                         vectorEstado[12] = "SI"
                         vectorEstado[35] += 1
+                        vectorEstado[11] = len(self.cola) - 1
 
 
                 elif (nombre_proxEvento == "Fin Ocupacion futbol") or (
@@ -999,20 +994,17 @@ class MyWindow(QMainWindow):
                                                                                              ocupacion_futbol_a,
                                                                                              ocupacion_futbol_b)
                         vectorEstado[16] = vectorEstado[15] + prox_reloj
+                        self.acum_ocup += vectorEstado[15]
+                        print(vectorEstado[15])
 
-                        # APLICACIÓN DEL RUNGE KUTTA
+                        # Aplicacion del rounge kutta 2
                         vectorEstado[24], vectorEstado[23] = self.calcular_uniforme_dif(uniforme_a, uniforme_b)
-                        if vectorEstado[24] == uniforme_a:
-                            vectorEstado[25] = resultados[0]
-
-                        elif vectorEstado[24] == uniforme_b:
-                            vectorEstado[25] = resultados[-1]
-
-                        else:
-                            if vectorEstado[24] in puntos_corte:
-                                indice = puntos_corte.index(vectorEstado[24])
-                                if 0 <= indice < len(resultados):
-                                    vectorEstado[25] = resultados[indice+1]
+                        uniforme_a = int(uniforme_a)
+                        uniforme_b = int(uniforme_b)
+                        cant_niveles = uniforme_b - uniforme_a
+                        for i in range(cant_niveles + 1):
+                            if vectorEstado[24] == i+uniforme_a:
+                                vectorEstado[25] = resultados[i]
 
                         vectorEstado[26] = vectorEstado[16] + vectorEstado[25]
                         vectorEstado[34] += vectorEstado[25]
@@ -1040,20 +1032,17 @@ class MyWindow(QMainWindow):
                                                                                                ocupacion_hand_a,
                                                                                                ocupacion_hand_b)
                         vectorEstado[19] = vectorEstado[18] + prox_reloj
+                        self.acum_ocup += vectorEstado[18]
+                        print(vectorEstado[18])
 
-                        # APLICACIÓN DEL RUNGE KUTTA
+                        # Aplicacion del rounge kutta 2
                         vectorEstado[24], vectorEstado[23] = self.calcular_uniforme_dif(uniforme_a, uniforme_b)
-                        if vectorEstado[24] == uniforme_a:
-                            vectorEstado[25] = resultados[0]
-
-                        elif vectorEstado[24] == uniforme_b:
-                            vectorEstado[25] = resultados[-1]
-
-                        else:
-                            if vectorEstado[24] in puntos_corte:
-                                indice = puntos_corte.index(vectorEstado[24])
-                                if 0 <= indice < len(resultados):
-                                    vectorEstado[25] = resultados[indice+1]
+                        uniforme_a = int(uniforme_a)
+                        uniforme_b = int(uniforme_b)
+                        cant_niveles = uniforme_b - uniforme_a
+                        for i in range(cant_niveles + 1):
+                            if vectorEstado[24] == i + uniforme_a:
+                                vectorEstado[25] = resultados[i]
 
                         vectorEstado[26] = vectorEstado[19] + vectorEstado[25]
                         vectorEstado[34] += vectorEstado[25]
@@ -1075,20 +1064,17 @@ class MyWindow(QMainWindow):
                                                                                                ocupacion_hand_a,
                                                                                                ocupacion_hand_b)
                         vectorEstado[22] = vectorEstado[21] + prox_reloj
+                        self.acum_ocup += vectorEstado[21]
+                        print(vectorEstado[21])
 
-                        # APLICACIÓN DEL RUNGE KUTTA
+                        # Aplicacion del rounge kutta 2
                         vectorEstado[24], vectorEstado[23] = self.calcular_uniforme_dif(uniforme_a, uniforme_b)
-                        if vectorEstado[24] == uniforme_a:
-                            vectorEstado[25] = resultados[0]
-
-                        elif vectorEstado[24] == uniforme_b:
-                            vectorEstado[25] = resultados[-1]
-
-                        else:
-                            if vectorEstado[24] in puntos_corte:
-                                indice = puntos_corte.index(vectorEstado[24])
-                                if 0 <= indice < len(resultados):
-                                    vectorEstado[25] = resultados[indice+1]
+                        uniforme_a = int(uniforme_a)
+                        uniforme_b = int(uniforme_b)
+                        cant_niveles = uniforme_b - uniforme_a
+                        for i in range(cant_niveles + 1):
+                            if vectorEstado[24] == i + uniforme_a:
+                                vectorEstado[25] = resultados[i]
 
                         vectorEstado[26] = vectorEstado[22] + vectorEstado[25]
                         vectorEstado[34] += vectorEstado[25]
@@ -1128,29 +1114,19 @@ class MyWindow(QMainWindow):
         resultados = []
         int_uniforme_a = int(uniforme_a)
         int_uniforme_b = int(uniforme_b)
-        corte = uniforme_b - uniforme_a
 
         # Crear una lista de puntos de corte excluyendo los extremos
         puntos_corte = list(range(int_uniforme_a + 1, int_uniforme_b))
 
         while True:
-            print(puntos_corte)
-            print(vector_runge)
             self.window.insertar_en_tabla_runge(vector_runge)
 
-            # Guardar vector[0] si vector[1] alcanza los umbrales 1, 2, 3
-            if vector_runge[1] >= uniforme_a and len(resultados) == 0:
-                tiempo = vector_runge[0] * 0.1
-                resultados.append(tiempo)
+            cantidad = int_uniforme_b - int_uniforme_a
 
-            if len(puntos_corte) > 0 and vector_runge[1] >= puntos_corte[0]:
-                tiempo = vector_runge[0] * 0.1
-                resultados.append(tiempo)
-                puntos_corte.pop(0)
-
-            if vector_runge[7] >= uniforme_b and len(resultados) == corte:
-                tiempo = vector_runge[6] * 0.1
-                resultados.append(tiempo)
+            for i in range(cantidad + 1):
+                if vector_runge[1] >= int_uniforme_a + i and len(resultados) == i:
+                    tiempo = (vector_runge[0] * 10) / 60
+                    resultados.append(tiempo)
 
             print(resultados)
 
@@ -1163,13 +1139,13 @@ class MyWindow(QMainWindow):
                         (vector_runge[0] + h / 2) ** 2)
             vector_runge[4] = valor_t * (vector_runge[0] + h / 2) + valor_m * (vector_runge[1] + (h / 2) * vector_runge[3]) * (
                         (vector_runge[0] + h / 2) ** 2)
-            vector_runge[5] = valor_t * (vector_runge[0] + h/2) + valor_m * (vector_runge[1] + h * vector_runge[4]) * ((vector_runge[0] + h/2) ** 2)
+            vector_runge[5] = valor_t * (vector_runge[0] + h) + valor_m * (vector_runge[1] + h * vector_runge[4]) * ((vector_runge[0] + h) ** 2)
 
             vector_runge[6] = vector_runge[0] + h
-            vector_runge[7] = vector_runge[1] + (h / 6) * (vector_runge[2] + 2 * vector_runge[2] + 2 * vector_runge[2] + vector_runge[2])
+            vector_runge[7] = vector_runge[1] + (h / 6) * (vector_runge[2] + 2 * vector_runge[3] + 2 * vector_runge[4] + vector_runge[5])
 
-            # Verificar si vector_runge[1] ha alcanzado o superado uniforme_b
-            if vector_runge[1] > uniforme_b:
+            # Verificar si vector_runge[1] ha alcanzado o superado 3
+            if len(resultados) == cantidad + 1:
                 break
 
         return resultados
@@ -1354,7 +1330,9 @@ class MyWindow(QMainWindow):
             vector_final[3] = vectorEstado[33] / vectorEstado[30]
         else:
             vector_final[3] = 0
-        valor = (vectorEstado[34] / self.cant_partidos) * 100
+        valor = (vectorEstado[34] / self.acum_ocup) * 100
+        print("---------------------------------------------")
+        print(self.acum_ocup)
         vector_final[5] = f"{valor:.2f}%"
 
         return vector_final
